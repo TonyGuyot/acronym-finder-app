@@ -1,4 +1,8 @@
 <resources>
+    <!-- general application strings -->
     <string name="app_name">Acronym</string>
+    <string name="app_description">Search the meaning of an acronym…</string>
+
+    <!-- menu items -->
     <string name="action_settings">Settings</string>
 </resources>
