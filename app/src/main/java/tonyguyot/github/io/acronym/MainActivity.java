@@ -1,5 +1,6 @@
 package tonyguyot.github.io.acronym;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -8,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,6 +20,13 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // set custom font for the app title
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/Lobster-Regular.ttf");
+        title.setTypeface(tf);
+
+        // set the callback for the FAB
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

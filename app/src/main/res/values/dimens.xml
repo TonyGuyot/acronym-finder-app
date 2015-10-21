@@ -4,4 +4,9 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="nav_drawer_width">260dp</dimen>
+
+    <!-- Default font sizes -->
+    <!-- TODO: must be set according to Google guidelines -->
+    <dimen name="title_text_size">24sp</dimen>
+    <dimen name="subtitle_text_size">16sp</dimen>
 </resources>
