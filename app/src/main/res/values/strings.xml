@@ -5,4 +5,9 @@
 
     <!-- menu items -->
     <string name="action_settings">Settings</string>
+
+    <!-- tab titles -->
+    <string name="tab_query">Query</string>
+    <string name="tab_history">History</string>
+    <string name="tab_info">Info</string>
 </resources>

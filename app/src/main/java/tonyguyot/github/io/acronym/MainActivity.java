@@ -4,12 +4,20 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +34,13 @@ public class MainActivity extends AppCompatActivity {
         Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/Lobster-Regular.ttf");
         title.setTypeface(tf);
 
+        // set the tabs and view pager
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(viewPager);
+
+        TabLayout tabLayout = (TabLayout) toolbar.findViewById(R.id.toolbar_tabs);
+        tabLayout.setupWithViewPager(viewPager);
+
         // set the callback for the FAB
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -35,6 +50,45 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+    }
+
+    // helper method to setup the view pager
+    private void setupViewPager(ViewPager vp) {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addItem(new QueryFragment(), getResources().getString(R.string.tab_query));
+        adapter.addItem(new HistoryFragment(), getResources().getString(R.string.tab_history));
+        adapter.addItem(new InfoFragment(), getResources().getString(R.string.tab_info));
+        vp.setAdapter(adapter);
+    }
+
+    // adapter for the view pager
+    private class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<String> mTitles = new ArrayList<>();
+        private final List<Fragment> mFragments = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public int getCount() {
+            return mFragments.size();
+        }
+
+        @Override
+        public Fragment getItem(int pos) {
+            return mFragments.get(pos);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int pos) {
+            return mTitles.get(pos);
+        }
+
+        public void addItem(Fragment fragment, String title) {
+            mFragments.add(fragment);
+            mTitles.add(title);
+        }
     }
 
     @Override
