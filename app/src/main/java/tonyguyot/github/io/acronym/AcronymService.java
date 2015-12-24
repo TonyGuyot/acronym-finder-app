@@ -2,19 +2,25 @@ package tonyguyot.github.io.acronym;
 
 import android.app.Activity;
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import tonyguyot.github.io.acronym.data.Acronym;
+import tonyguyot.github.io.acronym.database.AcronymTable;
+import tonyguyot.github.io.acronym.provider.AcronymProvider;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -45,6 +51,9 @@ public class AcronymService extends IntentService {
 
     // parameter for the response status (mandatory)
     private static final String EXTRA_RESULT_STATUS = PREFIX + "extra.RESULT_STATUS";
+
+    // expiration period for the data in the cache (in milliseconds)
+    private static final long EXPIRATION_PERIOD = 5*24*60*60*1000; // 5 days
 
     // mandatory constructor for a service
     public AcronymService() {
@@ -78,8 +87,8 @@ public class AcronymService extends IntentService {
             Collection<Acronym> result = bundle.getParcelableArrayList(EXTRA_ACRONYM_LIST);
             return result;
         } else {
-            Log.d(TAG, "Unexpected intent action: "+intent.getAction()+
-                        "instead of: "+NOTIFICATION);
+            Log.d(TAG, "Unexpected intent action: " + intent.getAction() +
+                    "instead of: " + NOTIFICATION);
             return null;
         }
     }
@@ -89,8 +98,8 @@ public class AcronymService extends IntentService {
         if (NOTIFICATION.equals(intent.getAction())) {
             return intent.getIntExtra(EXTRA_RESULT_STATUS, -1);
         } else {
-            Log.d(TAG, "Unexpected intent action: "+intent.getAction()+
-                    "instead of: "+NOTIFICATION);
+            Log.d(TAG, "Unexpected intent action: " + intent.getAction() +
+                    "instead of: " + NOTIFICATION);
             return -1;
         }
     }
@@ -120,6 +129,7 @@ public class AcronymService extends IntentService {
         }
 
         ArrayList<Acronym> acronyms = null;
+        boolean newData = false;
         if (success) {
             // first try to retrieve the information from the cache
             acronyms = retrieveFromCache(acronym);
@@ -127,9 +137,13 @@ public class AcronymService extends IntentService {
             // if not found in cache or expired, access network
             if (acronyms == null) {
                 acronyms = retrieveFromServer(acronym);
+                newData = true;
             }
 
-            // TODO if retrieved from network, then add in cache
+            // if retrieved from network, then add in cache
+            if (newData) {
+                addToCache(acronyms);
+            }
         }
 
         // broadcast result back to sender
@@ -141,9 +155,105 @@ public class AcronymService extends IntentService {
     }
 
     // search the acronym in the cache and check that it is still valid
-    private ArrayList<Acronym> retrieveFromCache(String acronym) {
-        // TODO
-        return null;
+    private ArrayList<Acronym> retrieveFromCache(String name) {
+        ArrayList<Acronym> results = null;
+        long oldestDate = Long.MAX_VALUE;
+        String[] projection = {
+                AcronymProvider.Metadata.COLUMN_NAME,
+                AcronymProvider.Metadata.COLUMN_DEFINITION,
+                AcronymProvider.Metadata.COLUMN_COMMENT,
+                AcronymProvider.Metadata.COLUMN_INSERTION_DATE,
+        };
+        String[] selectionArgs = {
+                name,
+        };
+        Cursor cursor = getContentResolver().query(
+                AcronymProvider.CONTENT_URI,
+                projection,
+                AcronymProvider.Metadata.COLUMN_NAME + "= ?", // selection
+                selectionArgs,
+                null); // sortOrder
+        if (cursor == null) {
+            Log.d(TAG, "Error when retrieving data from content provider");
+        } else if (cursor.getCount() < 1) {
+            // nothing found
+            cursor.close();
+        } else {
+            results = new ArrayList<>();
+            String expansion;
+            String comment;
+            long insertedDate;
+            while (cursor.moveToNext()) {
+                expansion = cursor.getString(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_DEFINITION));
+                comment = cursor.getString(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_COMMENT));
+                insertedDate = cursor.getLong(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_INSERTION_DATE));
+                results.add(new Acronym.Builder(name, expansion)
+                        .comment(comment)
+                        .create());
+                oldestDate = Math.min(insertedDate, oldestDate);
+            }
+            cursor.close();
+        }
+
+        // check expiration date
+        if (results != null) {
+            if (oldestDate + EXPIRATION_PERIOD < System.currentTimeMillis()) {
+                // data is too old
+                results = null;
+            }
+        }
+
+        return results;
+    }
+
+    // remove the acronym list from the cache
+    private void removeFromCache(Collection<Acronym> acronyms) {
+        int deleted = 0;
+        for (Acronym acronym : acronyms) {
+            deleted += deleteByName(acronym.getName());
+        }
+        Log.d(TAG, deleted + " element(s) deleted from content provider");
+    }
+
+    // delete elements from the content provider
+    private int deleteByName(String name) {
+        String[] selectionArgs = { name };
+        return getContentResolver().delete(
+                AcronymProvider.CONTENT_URI,
+                AcronymProvider.Metadata.COLUMN_NAME + "= ?",
+                selectionArgs);
+    }
+
+    // add the acronym list to the cache
+    private void addToCache(Collection<Acronym> acronyms) {
+
+        if (acronyms == null) {
+            return;
+        }
+
+        // delete previous items
+        removeFromCache(acronyms);
+
+        // add the new ones
+        for (Acronym acronym : acronyms) {
+            addElement(acronym);
+        }
+    }
+
+    // add one element to the content provider
+    private void addElement(Acronym acronym) {
+        // create the values
+        ContentValues values = new ContentValues();
+        values.put(AcronymProvider.Metadata.COLUMN_NAME, acronym.getName());
+        values.put(AcronymProvider.Metadata.COLUMN_DEFINITION, acronym.getExpansion());
+        if (!TextUtils.isEmpty(acronym.getComment())) {
+            values.put(AcronymProvider.Metadata.COLUMN_COMMENT, acronym.getComment());
+        }
+        values.put(AcronymProvider.Metadata.COLUMN_INSERTION_DATE, System.currentTimeMillis());
+
+        // insert the values
+        getContentResolver().insert(AcronymProvider.CONTENT_URI, values);
+        Log.d(TAG, "inserted " + acronym.getName() + "(" + acronym.getExpansion() + ")");
     }
 
     // retrieve the acronym from the server, performing an HTTP request
