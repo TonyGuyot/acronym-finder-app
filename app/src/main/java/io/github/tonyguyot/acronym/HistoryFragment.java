@@ -1,4 +1,4 @@
-package tonyguyot.github.io.acronym;
+package io.github.tonyguyot.acronym;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,7 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import tonyguyot.github.io.acronym.dummy.DummyContent;
+import io.github.tonyguyot.acronym.dummy.DummyContent;
 
 /**
  * A fragment representing a list of Items.

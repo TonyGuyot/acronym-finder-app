@@ -1,4 +1,4 @@
-package tonyguyot.github.io.acronym;
+package io.github.tonyguyot.acronym;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import java.util.Collection;
 
-import tonyguyot.github.io.acronym.data.Acronym;
+import io.github.tonyguyot.acronym.data.Acronym;
 
 
 /**

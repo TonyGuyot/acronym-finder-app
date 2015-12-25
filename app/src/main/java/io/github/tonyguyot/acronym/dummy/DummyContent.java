@@ -1,4 +1,4 @@
-package tonyguyot.github.io.acronym.dummy;
+package io.github.tonyguyot.acronym.dummy;
 
 import java.util.ArrayList;
 import java.util.HashMap;

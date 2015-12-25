@@ -1,9 +1,8 @@
-package tonyguyot.github.io.acronym;
+package io.github.tonyguyot.acronym;
 
 import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -11,9 +10,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 
-import tonyguyot.github.io.acronym.data.Acronym;
+import io.github.tonyguyot.acronym.data.Acronym;
 
 /**
  * This class provides the actions which are possible on an acronym.

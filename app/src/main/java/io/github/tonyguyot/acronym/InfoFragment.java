@@ -1,4 +1,4 @@
-package tonyguyot.github.io.acronym;
+package io.github.tonyguyot.acronym;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

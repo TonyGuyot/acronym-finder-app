@@ -1,4 +1,4 @@
-package tonyguyot.github.io.acronym;
+package io.github.tonyguyot.acronym;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

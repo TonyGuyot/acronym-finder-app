@@ -1,4 +1,4 @@
-package tonyguyot.github.io.acronym;
+package io.github.tonyguyot.acronym;
 
 import android.app.Activity;
 import android.app.IntentService;
@@ -8,19 +8,14 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 
-import tonyguyot.github.io.acronym.data.Acronym;
-import tonyguyot.github.io.acronym.database.AcronymTable;
-import tonyguyot.github.io.acronym.provider.AcronymProvider;
+import io.github.tonyguyot.acronym.data.Acronym;
+import io.github.tonyguyot.acronym.provider.AcronymProvider;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="tonyguyot.github.io.acronym.QueryFragment">
+    tools:context="io.github.tonyguyot.acronym.QueryFragment">
 
     <!-- First part: the query text box -->
     <LinearLayout

@@ -1,4 +1,4 @@
-package tonyguyot.github.io.acronym.data;
+package io.github.tonyguyot.acronym.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;

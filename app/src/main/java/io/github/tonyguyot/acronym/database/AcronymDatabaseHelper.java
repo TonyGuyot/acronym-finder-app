@@ -1,4 +1,4 @@
-package tonyguyot.github.io.acronym.database;
+package io.github.tonyguyot.acronym.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

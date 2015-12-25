@@ -1,4 +1,4 @@
-package tonyguyot.github.io.acronym.provider;
+package io.github.tonyguyot.acronym.provider;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -9,8 +9,8 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import tonyguyot.github.io.acronym.database.AcronymDatabaseHelper;
-import tonyguyot.github.io.acronym.database.AcronymTable;
+import io.github.tonyguyot.acronym.database.AcronymDatabaseHelper;
+import io.github.tonyguyot.acronym.database.AcronymTable;
 
 public class AcronymProvider extends ContentProvider {
 
