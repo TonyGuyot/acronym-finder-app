@@ -18,11 +18,15 @@ public class Utils {
 
     // ------
     // the following methods are shortcuts to retrieve different services
+
+    // get a reference to the input manager
     public static InputMethodManager getInputMethodManager(Activity activity) {
-        return (InputMethodManager) activity.getSystemService
-                (Context.INPUT_METHOD_SERVICE);
+        return (InputMethodManager)
+                activity.getSystemService(Context.INPUT_METHOD_SERVICE);
     }
+
     // ------
+    // the following methods are shortcuts to display toasts and snackbars
 
     // display a toast with a String
     public static void toast(Context context, CharSequence message) {

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +60,7 @@ public class QueryFragment extends Fragment {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onButtonClick();
+                onSubmitButtonClick();
             }
         });
 
@@ -82,9 +83,10 @@ public class QueryFragment extends Fragment {
 
     // called when the user clicks on the submit button
     // => start the AcronymService to retrieve the acronym expansions
-    private void onButtonClick() {
-        String acronym =  mTvQuery.getText().toString();
-        if (!acronym.isEmpty()) {
+    private void onSubmitButtonClick() {
+        String acronym = mTvQuery.getText().toString();
+        if (!TextUtils.isEmpty(acronym)) {
+            Utils.hideKeyboard(getActivity(), mTvQuery.getWindowToken());
             AcronymService.start(getContext(), acronym);
         }
     }
