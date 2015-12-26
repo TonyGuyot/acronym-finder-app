@@ -1,15 +1,27 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="io.github.tonyguyot.acronym.QueryFragment">
+    tools:context="io.github.tonyguyot.acronym.QueryFragment"
+    >
 
-    <!-- First part: the query text box -->
+    <!-- First part: information about the app -->
+    <TextView
+        android:id="@+id/query_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_description"
+        android:gravity="center_horizontal"
+        />
+
+    <!-- Second part: the query text box -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        >
 
         <EditText
             android:id="@+id/query_entry"
@@ -29,7 +41,7 @@
             />
     </LinearLayout>
 
-    <!-- Second part: the result list -->
+    <!-- Third part: the result list -->
     <TextView
         android:id="@+id/query_result"
         android:layout_width="match_parent"
