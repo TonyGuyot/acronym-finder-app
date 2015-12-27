@@ -2,6 +2,8 @@ package io.github.tonyguyot.acronym;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
@@ -17,12 +19,18 @@ public class Utils {
     }
 
     // ------
-    // the following methods are shortcuts to retrieve different services
+    // ACCESS TO ANDROID SYSTEM SERVICES
 
     // get a reference to the input manager
     public static InputMethodManager getInputMethodManager(Activity activity) {
         return (InputMethodManager)
                 activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+    }
+
+    // get a reference to the connectivity manager
+    public static ConnectivityManager getConnectivityManager(Activity activity) {
+        return (ConnectivityManager)
+                activity.getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
     // ------
@@ -51,4 +59,13 @@ public class Utils {
         getInputMethodManager(activity).hideSoftInputFromWindow(windowToken, 0);
     }
 
+    // NETWORK INFORMATION
+
+    // indicates if currently connected to a network
+    public boolean isConnectedToNetwork(Activity activity) {
+        ConnectivityManager cm = getConnectivityManager(activity);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+    }
 }
