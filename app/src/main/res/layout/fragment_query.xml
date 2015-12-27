@@ -45,8 +45,15 @@
     <TextView
         android:id="@+id/query_result"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/query_no_query"
+        />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/query_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
         />
 
 </LinearLayout>

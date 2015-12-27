@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,8 +25,9 @@ import io.github.tonyguyot.acronym.data.Acronym;
  */
 public class QueryFragment extends Fragment {
 
-    TextView mTvQuery;
-    TextView mTvResult;
+    private TextView mTvQuery;
+    private TextView mTvResult;
+    private QueryAdapter mAdapter;
 
     // define the broadcast receiver for the results of acronym searches
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -54,6 +57,12 @@ public class QueryFragment extends Fragment {
         // retrieve the different UI items we need to interact with
         mTvQuery = (TextView) view.findViewById(R.id.query_entry);
         mTvResult = (TextView) view.findViewById(R.id.query_result);
+
+        // initialize the recycler view for the list of results
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.query_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mAdapter = new QueryAdapter();
+        recyclerView.setAdapter(mAdapter);
 
         // define the callback for the button
         Button submitButton = (Button) view.findViewById(R.id.query_submit);
@@ -93,11 +102,16 @@ public class QueryFragment extends Fragment {
 
     // received notification about search result
     private void onResultReceived(Intent intent) {
-       if (AcronymService.getResultStatus(intent) == Activity.RESULT_OK) {
+
+        // clear the previous results
+        mAdapter.clear();
+
+        // display the new results
+        if (AcronymService.getResultStatus(intent) == Activity.RESULT_OK) {
            onResultSuccess(intent);
-       } else {
+        } else {
            onResultFailed(intent);
-       }
+        }
     }
 
     // received notification about acronym search success
@@ -105,6 +119,11 @@ public class QueryFragment extends Fragment {
         Collection<Acronym> acronyms = AcronymService.getResultList(intent);
         if (acronyms != null) {
             mTvResult.setText(acronyms.toString());
+            int pos = 0;
+            for (Acronym item : acronyms) {
+                mAdapter.add(pos, item);
+                pos++;
+            }
         } else {
             mTvResult.setText("null");
         }
