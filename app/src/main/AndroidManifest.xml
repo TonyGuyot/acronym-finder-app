@@ -9,23 +9,31 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AcronymAppTheme" >
+        android:theme="@style/AcronymAppTheme"
+        >
+
+        <!-- the main (and only one) activity -->
+        <!-- use "stateHidden" to indicate that we don't want the keyboard
+             to pop-up immediately when the application starts -->
         <activity
             android:name="io.github.tonyguyot.acronym.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AcronymAppTheme.NoActionBar" >
+            android:theme="@style/AcronymAppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!-- service is used for all background operations -->
         <service
             android:name="io.github.tonyguyot.acronym.AcronymService"
             android:exported="false" >
         </service>
 
+        <!-- content provider is used to cache all the results received -->
         <provider
             android:name="io.github.tonyguyot.acronym.provider.AcronymProvider"
             android:authorities="io.github.tonyguyot.acronym.provider"
