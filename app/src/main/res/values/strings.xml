@@ -24,5 +24,8 @@
              to retrieve the tags -->
     </plurals>
     <string name="query_no_query">No search has been performed yet</string>
-    <string name="query_error">An error occurred, could not connect to the server</string>
+    <string name="query_error_server">Error: cannot connect to the server</string>
+    <string name="query_error_parse">Error: cannot decode response from server</string>
+    <string name="query_error_response">Error: did not receive response from server (HTTP error %d)</string>
+    <string name="query_error_other">An error occurred</string>
 </resources>

@@ -169,7 +169,18 @@ public class QueryFragment extends Fragment {
 
     // received notification about acronym search failed
     private void onResultFailed(Intent intent) {
-        mTvResultStatus.setText(R.string.query_error);
+        if (AcronymService.isNetworkError(intent)) {
+            mTvResultStatus.setText(R.string.query_error_server);
+        } else if (AcronymService.isParsingError(intent)) {
+            mTvResultStatus.setText(R.string.query_error_parse);
+        } else if (AcronymService.isHttpError(intent)) {
+            int httpCode = AcronymService.getHttpResponse(intent);
+            Resources res = getResources();
+            String text = String.format(res.getString(R.string.query_error_response), httpCode);
+            mTvResultStatus.setText(text);
+        } else {
+            mTvResultStatus.setText(R.string.query_error_other);
+        }
     }
 
     // ------ HELPER METHODS -----

@@ -18,6 +18,32 @@ import io.github.tonyguyot.acronym.data.Acronym;
  */
 public class AcronymMediator {
 
+    // inner class to define a response
+    public static class Response {
+
+        // constants for the possible statuses
+        public static final int OK = 1;
+        public static final int NETWORK_ERROR = 2;
+        public static final int PARSE_ERROR = 3;
+        public static final int HTTP_ERROR = 4;
+
+        // the general status (see constants above)
+        public int mStatus;
+
+        // the HTTP response code
+        public int mHttpResponse;
+
+        // the list of retrieved acronyms (or null if error)
+        public ArrayList<Acronym> mResults;
+
+        // constructor
+        Response() {
+            mStatus = OK;
+            mHttpResponse = -1;
+            mResults = null;
+        }
+    }
+
     // Tag for logging information
     private static final String TAG = "AcronymMediator";
 
@@ -26,28 +52,29 @@ public class AcronymMediator {
 
     // connect to the server to retrieve the list of definitions for the
     // given acronym
-    public ArrayList<Acronym> retrieveAcronymDefinitions(String acronym) {
-        ArrayList<Acronym> acronyms = null;
+    public Response retrieveAcronymDefinitions(String acronym) {
+        Response response = new Response();
         try {
             final URL url = new URL(SILMARIL_SERVER + acronym);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             try {
+                response.mHttpResponse =  conn.getResponseCode();
                 InputStream in = new BufferedInputStream(conn.getInputStream());
-                acronyms = AcronymXmlParser.parse(in);
+                response.mResults = AcronymXmlParser.parse(in);
             } catch (XmlPullParserException e) {
                 Log.d(TAG, "Error: cannot parse XML response.");
-                // TODO
+                response.mStatus = Response.PARSE_ERROR;
             } catch (IOException e) {
                 Log.d(TAG, "Error: did not receive response from server.");
-                // TODO
+                response.mStatus = Response.HTTP_ERROR;
             } finally {
                 conn.disconnect();
             }
 
         } catch (IOException e) {
             Log.d(TAG, "Error: cannot connect to the server.");
-            // TODO
+            response.mStatus = Response.NETWORK_ERROR;
         }
-        return acronyms;
+        return response;
     }
 }

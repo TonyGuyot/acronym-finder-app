@@ -47,8 +47,29 @@ public class AcronymService extends IntentService {
     // parameter for the response status (mandatory)
     private static final String EXTRA_RESULT_STATUS = PREFIX + "extra.RESULT_STATUS";
 
+    // parameter for the response error information (mandatory if error)
+    private static final String EXTRA_ERROR_CODE = PREFIX + "extra.ERROR_CODE";
+
+    // possible values for the error
+    private static final int ERROR_CODE_NETWORK = -1;
+    private static final int ERROR_CODE_PARSING = -2;
+    private static final int ERROR_CODE_UNKNOWN = -3;
+    // ...other error codes are HTTP error codes
+
     // expiration period for the data in the cache (in milliseconds)
     private static final long EXPIRATION_PERIOD = 5*24*60*60*1000; // 5 days
+
+    // inner class for a response
+    private class Result {
+        ArrayList<Acronym> list;
+        int errorCode;
+        boolean hasExpired;
+        Result() {
+            list = null;
+            errorCode = 0;
+            hasExpired = false;
+        }
+    }
 
     // mandatory constructor for a service
     public AcronymService() {
@@ -93,8 +114,6 @@ public class AcronymService extends IntentService {
             Bundle bundle = intent.getExtras();
             return bundle.getParcelableArrayList(EXTRA_ACRONYM_LIST);
         } else {
-            Log.d(TAG, "Unexpected intent action: " + intent.getAction() +
-                    "instead of: " + NOTIFICATION);
             return null;
         }
     }
@@ -102,11 +121,30 @@ public class AcronymService extends IntentService {
     // extract the result status from the reply intent
     public static int getResultStatus(Intent intent) {
         if (NOTIFICATION.equals(intent.getAction())) {
-            return intent.getIntExtra(EXTRA_RESULT_STATUS, -1);
+            return intent.getIntExtra(EXTRA_RESULT_STATUS, Activity.RESULT_CANCELED);
         } else {
-            Log.d(TAG, "Unexpected intent action: " + intent.getAction() +
-                    "instead of: " + NOTIFICATION);
-            return -1;
+            return Activity.RESULT_CANCELED;
+        }
+    }
+
+    // extract error code from the reply intent
+    public static boolean isNetworkError(Intent intent) {
+        return NOTIFICATION.equals(intent.getAction())
+            && intent.getIntExtra(EXTRA_ERROR_CODE, ERROR_CODE_UNKNOWN) == ERROR_CODE_NETWORK;
+    }
+    public static boolean isParsingError(Intent intent) {
+        return NOTIFICATION.equals(intent.getAction())
+                && intent.getIntExtra(EXTRA_ERROR_CODE, ERROR_CODE_UNKNOWN) == ERROR_CODE_PARSING;
+    }
+    public static boolean isHttpError(Intent intent) {
+        return NOTIFICATION.equals(intent.getAction())
+                && intent.getIntExtra(EXTRA_ERROR_CODE, ERROR_CODE_UNKNOWN) > 0;
+    }
+    public static int getHttpResponse(Intent intent) {
+        if (NOTIFICATION.equals(intent.getAction())) {
+            return intent.getIntExtra(EXTRA_ERROR_CODE, ERROR_CODE_UNKNOWN);
+        } else {
+            return ERROR_CODE_UNKNOWN;
         }
     }
 
@@ -134,35 +172,35 @@ public class AcronymService extends IntentService {
             success = false;
         }
 
-        ArrayList<Acronym> acronyms = null;
+        Result results = new Result();
         boolean newData = false;
         if (success) {
             // first try to retrieve the information from the cache
-            acronyms = retrieveFromCache(acronym);
+            results = retrieveFromCache(acronym);
 
             // if not found in cache or expired, access network
-            if (acronyms == null) {
-                acronyms = retrieveFromServer(acronym);
+            if (results.list == null) {
+                results = retrieveFromServer(acronym);
                 newData = true;
             }
 
             // if retrieved from network, then add in cache
             if (newData) {
-                addToCache(acronyms);
+                addToCache(results.list, results.hasExpired);
             }
         }
 
         // broadcast result back to sender
-        if (acronyms != null) {
-            publishResults(acronym, acronyms, Activity.RESULT_OK);
+        if (results.list != null) {
+            publishResultsSuccess(acronym, results.list);
         } else {
-            publishResults(acronym, null, Activity.RESULT_CANCELED);
+            publishResultsFailure(acronym, results.errorCode);
         }
     }
 
     // search the acronym in the cache and check that it is still valid
-    private ArrayList<Acronym> retrieveFromCache(String name) {
-        ArrayList<Acronym> results = null;
+    private Result retrieveFromCache(String name) {
+        Result results = new Result();
         long oldestDate = Long.MAX_VALUE;
         String[] projection = {
                 AcronymProvider.Metadata.COLUMN_NAME,
@@ -185,7 +223,7 @@ public class AcronymService extends IntentService {
             // nothing found
             cursor.close();
         } else {
-            results = new ArrayList<>();
+            results.list = new ArrayList<>();
             String expansion;
             String comment;
             long insertedDate;
@@ -193,7 +231,7 @@ public class AcronymService extends IntentService {
                 expansion = cursor.getString(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_DEFINITION));
                 comment = cursor.getString(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_COMMENT));
                 insertedDate = cursor.getLong(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_INSERTION_DATE));
-                results.add(new Acronym.Builder(name, expansion)
+                results.list.add(new Acronym.Builder(name, expansion)
                         .comment(comment)
                         .create());
                 oldestDate = Math.min(insertedDate, oldestDate);
@@ -202,10 +240,11 @@ public class AcronymService extends IntentService {
         }
 
         // check expiration date
-        if (results != null) {
+        if (results.list != null) {
             if (oldestDate + EXPIRATION_PERIOD < System.currentTimeMillis()) {
                 // data is too old
-                results = null;
+                results.list = null;
+                results.hasExpired = true;
             }
         }
 
@@ -231,14 +270,16 @@ public class AcronymService extends IntentService {
     }
 
     // add the acronym list to the cache
-    private void addToCache(Collection<Acronym> acronyms) {
+    private void addToCache(Collection<Acronym> acronyms, boolean doDeletePrevious) {
 
         if (acronyms == null) {
             return;
         }
 
         // delete previous items
-        removeFromCache(acronyms);
+        if (doDeletePrevious) {
+            removeFromCache(acronyms);
+        }
 
         // add the new ones
         for (Acronym acronym : acronyms) {
@@ -263,19 +304,42 @@ public class AcronymService extends IntentService {
     }
 
     // retrieve the acronym from the server, performing an HTTP request
-    private ArrayList<Acronym> retrieveFromServer(String acronym) {
+    private Result retrieveFromServer(String acronym) {
+        Result results = new Result();
         AcronymMediator mediator = new AcronymMediator();
-        return mediator.retrieveAcronymDefinitions(acronym);
+        AcronymMediator.Response resp = mediator.retrieveAcronymDefinitions(acronym);
+        results.list = resp.mResults;
+        switch (resp.mStatus) {
+            case AcronymMediator.Response.NETWORK_ERROR:
+                results.errorCode = ERROR_CODE_NETWORK;
+                break;
+            case AcronymMediator.Response.PARSE_ERROR:
+                results.errorCode = ERROR_CODE_PARSING;
+                break;
+            case AcronymMediator.Response.HTTP_ERROR:
+                results.errorCode = resp.mHttpResponse;
+                break;
+        }
+        return results;
     }
 
     // publish the results using a local broadcast receiver
-    private void publishResults(String acronym, ArrayList<Acronym> results, int result) {
+    private void publishResultsSuccess(String acronym, ArrayList<Acronym> results) {
         Intent intent = new Intent(NOTIFICATION);
         intent.putExtra(EXTRA_ACRONYM_NAME, acronym);
         intent.putExtra(EXTRA_ACRONYM_LIST, results);
-        intent.putExtra(EXTRA_RESULT_STATUS, result);
+        intent.putExtra(EXTRA_RESULT_STATUS, Activity.RESULT_OK);
 
         sendBroadcast(intent);
     }
 
+    // publish the error code using a local broadcast receiver
+    private void publishResultsFailure(String acronym, int errorCode) {
+        Intent intent = new Intent(NOTIFICATION);
+        intent.putExtra(EXTRA_ACRONYM_NAME, acronym);
+        intent.putExtra(EXTRA_ERROR_CODE, errorCode);
+        intent.putExtra(EXTRA_RESULT_STATUS, Activity.RESULT_CANCELED);
+
+        sendBroadcast(intent);
+    }
 }
