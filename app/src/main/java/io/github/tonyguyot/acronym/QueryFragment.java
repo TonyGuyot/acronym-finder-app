@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,8 +28,16 @@ import io.github.tonyguyot.acronym.data.Acronym;
  */
 public class QueryFragment extends Fragment {
 
+    // tag for logging information
+    private static final String TAG = "AcronymQueryFragment";
+
+    // where the user types the acronym to search
     private TextView mTvQuery;
-    private TextView mTvResult;
+
+    // where we display if the search was successful
+    private TextView mTvResultStatus;
+
+    // the adapter for the list of results
     private QueryAdapter mAdapter;
 
     // define the broadcast receiver for the results of acronym searches
@@ -46,6 +57,8 @@ public class QueryFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // TODO: retrieve the previous values
     }
 
     @Override
@@ -56,7 +69,7 @@ public class QueryFragment extends Fragment {
 
         // retrieve the different UI items we need to interact with
         mTvQuery = (TextView) view.findViewById(R.id.query_entry);
-        mTvResult = (TextView) view.findViewById(R.id.query_result);
+        mTvResultStatus = (TextView) view.findViewById(R.id.query_result);
 
         // initialize the recycler view for the list of results
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.query_list);
@@ -108,29 +121,51 @@ public class QueryFragment extends Fragment {
 
         // display the new results
         if (AcronymService.getResultStatus(intent) == Activity.RESULT_OK) {
-           onResultSuccess(intent);
+           onResultSuccess(intent); // we received an answer with 0 or more results
         } else {
-           onResultFailed(intent);
+           onResultFailed(intent); // network failure, no answer received
         }
     }
 
     // received notification about acronym search success
     private void onResultSuccess(Intent intent) {
-        Collection<Acronym> acronyms = AcronymService.getResultList(intent);
-        if (acronyms != null) {
-            mTvResult.setText(acronyms.toString());
+        Collection<Acronym> results = AcronymService.getResultList(intent);
+        String acronym = AcronymService.getAcronymName(intent);
+
+        if (results != null) {
+            Log.d(TAG, results.toString());
+
+            // display the number of results in the status text view
+            Resources res = getResources();
+            String text;
+            if (results.isEmpty()) {
+                // no result found
+                text = String.format(res.getString(R.string.query_no_result), acronym);
+            } else {
+                // one or more results found
+                int count = results.size();
+                text = res.getQuantityString(R.plurals.query_n_results,
+                        count, // to select which string we use (plural or not)
+                        count, // to replace %d with number
+                        acronym); // to replace %s with name
+            }
+            CharSequence styledText = Html.fromHtml(text); // retrieve HTML tags
+            mTvResultStatus.setText(styledText);
+
+            // display all the results in the list
             int pos = 0;
-            for (Acronym item : acronyms) {
+            for (Acronym item : results) {
                 mAdapter.add(pos, item);
                 pos++;
             }
         } else {
-            mTvResult.setText("null");
+            // this should not happen here and will be treated as an error
+            onResultFailed(intent);
         }
     }
 
     // received notification about acronym search failed
     private void onResultFailed(Intent intent) {
-        mTvResult.setText("error");
+        mTvResultStatus.setText(R.string.query_error);
     }
 }

@@ -14,7 +14,14 @@
     <!-- query fragment -->
     <string name="query_hint">Enter an acronym…</string>
     <string name="query_submit">Search</string>
-    <string name="query_no_result">This query returned no result</string>
-    <string name="query_no_query">No query has been performed yet</string>
-    <string name="query_error">An error occurred when performing the query</string>
+    <string name="query_no_result">No result found for &lt;b>%1$s&lt;/b></string>
+    <plurals name="query_n_results">
+        <item quantity="one">%1$d result found for &lt;b>%2$s&lt;/b></item>
+        <item quantity="other">%1$d results found for &lt;b>%2$s&lt;/b></item>
+        <!-- html tags are escaped since they are not permitted when using
+             String.format() - Html.fromHtml() must be used in order
+             to retrieve the tags -->
+    </plurals>
+    <string name="query_no_query">No search has been performed yet</string>
+    <string name="query_error">An error occurred, could not connect to the server</string>
 </resources>

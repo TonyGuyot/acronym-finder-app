@@ -75,12 +75,23 @@ public class AcronymService extends IntentService {
         return new IntentFilter(NOTIFICATION);
     }
 
+    // extract the acronym name from the reply intent
+    public static String getAcronymName(Intent intent) {
+        if (NOTIFICATION.equals(intent.getAction())) {
+            Bundle bundle = intent.getExtras();
+            return bundle.getString(EXTRA_ACRONYM_NAME);
+        } else {
+            Log.d(TAG, "Unexpected intent action: " + intent.getAction() +
+                    "instead of: " + NOTIFICATION);
+            return null;
+        }
+    }
+
     // extract the list of acronyms from the reply intent
     public static Collection<Acronym> getResultList(Intent intent) {
         if (NOTIFICATION.equals(intent.getAction())) {
             Bundle bundle = intent.getExtras();
-            Collection<Acronym> result = bundle.getParcelableArrayList(EXTRA_ACRONYM_LIST);
-            return result;
+            return bundle.getParcelableArrayList(EXTRA_ACRONYM_LIST);
         } else {
             Log.d(TAG, "Unexpected intent action: " + intent.getAction() +
                     "instead of: " + NOTIFICATION);
@@ -143,9 +154,9 @@ public class AcronymService extends IntentService {
 
         // broadcast result back to sender
         if (acronyms != null) {
-            publishResults(acronyms, Activity.RESULT_OK);
+            publishResults(acronym, acronyms, Activity.RESULT_OK);
         } else {
-            publishResults(null, Activity.RESULT_CANCELED);
+            publishResults(acronym, null, Activity.RESULT_CANCELED);
         }
     }
 
@@ -258,9 +269,10 @@ public class AcronymService extends IntentService {
     }
 
     // publish the results using a local broadcast receiver
-    private void publishResults(ArrayList<Acronym> acronyms, int result) {
+    private void publishResults(String acronym, ArrayList<Acronym> results, int result) {
         Intent intent = new Intent(NOTIFICATION);
-        intent.putExtra(EXTRA_ACRONYM_LIST, acronyms);
+        intent.putExtra(EXTRA_ACRONYM_NAME, acronym);
+        intent.putExtra(EXTRA_ACRONYM_LIST, results);
         intent.putExtra(EXTRA_RESULT_STATUS, result);
 
         sendBroadcast(intent);
