@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.Collection;
@@ -39,6 +40,9 @@ public class QueryFragment extends Fragment {
 
     // the adapter for the list of results
     private QueryAdapter mAdapter;
+
+    // the progress indicator to show that search is being performed
+    private ProgressBar mProgress;
 
     // define the broadcast receiver for the results of acronym searches
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -70,6 +74,7 @@ public class QueryFragment extends Fragment {
         // retrieve the different UI items we need to interact with
         mTvQuery = (TextView) view.findViewById(R.id.query_entry);
         mTvResultStatus = (TextView) view.findViewById(R.id.query_result);
+        mProgress = (ProgressBar) view.findViewById(R.id.query_progress);
 
         // initialize the recycler view for the list of results
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.query_list);
@@ -109,17 +114,15 @@ public class QueryFragment extends Fragment {
         String acronym = mTvQuery.getText().toString();
         if (!TextUtils.isEmpty(acronym)) {
             Utils.hideKeyboard(getActivity(), mTvQuery.getWindowToken());
+            showInProgress();
             AcronymService.start(getContext(), acronym);
         }
     }
 
     // received notification about search result
     private void onResultReceived(Intent intent) {
-
-        // clear the previous results
-        mAdapter.clear();
-
         // display the new results
+        hideInProgress();
         if (AcronymService.getResultStatus(intent) == Activity.RESULT_OK) {
            onResultSuccess(intent); // we received an answer with 0 or more results
         } else {
@@ -167,5 +170,23 @@ public class QueryFragment extends Fragment {
     // received notification about acronym search failed
     private void onResultFailed(Intent intent) {
         mTvResultStatus.setText(R.string.query_error);
+    }
+
+    // ------ HELPER METHODS -----
+
+    // set the UI in the "search in progress" mode
+    private void showInProgress() {
+        // clear previous result
+        mTvResultStatus.setText(R.string.query_in_progress);
+        mAdapter.clear();
+
+        // show the progress indicator
+        mProgress.setVisibility(View.VISIBLE);
+    }
+
+    // set the UI in the "search completed" mode
+    private void hideInProgress() {
+        // hide the progress indicator
+        mProgress.setVisibility(View.GONE);
     }
 }

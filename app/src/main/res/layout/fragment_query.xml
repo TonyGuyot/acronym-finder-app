@@ -42,6 +42,14 @@
     </LinearLayout>
 
     <!-- Third part: the result list -->
+    <ProgressBar
+        android:id="@+id/query_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone"
+        />
+
     <TextView
         android:id="@+id/query_result"
         android:layout_width="match_parent"
