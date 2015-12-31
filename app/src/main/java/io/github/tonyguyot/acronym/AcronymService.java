@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import io.github.tonyguyot.acronym.data.Acronym;
+import io.github.tonyguyot.acronym.operations.AcronymCacheMediator;
+import io.github.tonyguyot.acronym.operations.AcronymHttpMediator;
 import io.github.tonyguyot.acronym.provider.AcronymProvider;
 
 /**
@@ -60,11 +62,11 @@ public class AcronymService extends IntentService {
     private static final long EXPIRATION_PERIOD = 5*24*60*60*1000; // 5 days
 
     // inner class for a response
-    private class Result {
-        ArrayList<Acronym> list;
-        int errorCode;
-        boolean hasExpired;
-        Result() {
+    public static class Result {
+        public ArrayList<Acronym> list;
+        public int errorCode;
+        public boolean hasExpired;
+        public Result() {
             list = null;
             errorCode = 0;
             hasExpired = false;
@@ -176,7 +178,8 @@ public class AcronymService extends IntentService {
         boolean newData = false;
         if (success) {
             // first try to retrieve the information from the cache
-            results = retrieveFromCache(acronym);
+            AcronymCacheMediator cache = new AcronymCacheMediator(getApplicationContext());
+            results = cache.retrieveFromCache(acronym, EXPIRATION_PERIOD);
 
             // if not found in cache or expired, access network
             if (results.list == null) {
@@ -186,7 +189,7 @@ public class AcronymService extends IntentService {
 
             // if retrieved from network, then add in cache
             if (newData) {
-                addToCache(results.list, results.hasExpired);
+                cache.addToCache(results.list, results.hasExpired);
             }
         }
 
@@ -196,111 +199,6 @@ public class AcronymService extends IntentService {
         } else {
             publishResultsFailure(acronym, results.errorCode);
         }
-    }
-
-    // search the acronym in the cache and check that it is still valid
-    private Result retrieveFromCache(String name) {
-        Result results = new Result();
-        long oldestDate = Long.MAX_VALUE;
-        String[] projection = {
-                AcronymProvider.Metadata.COLUMN_NAME,
-                AcronymProvider.Metadata.COLUMN_DEFINITION,
-                AcronymProvider.Metadata.COLUMN_COMMENT,
-                AcronymProvider.Metadata.COLUMN_INSERTION_DATE,
-        };
-        String[] selectionArgs = {
-                name,
-        };
-        Cursor cursor = getContentResolver().query(
-                AcronymProvider.CONTENT_URI,
-                projection,
-                AcronymProvider.Metadata.COLUMN_NAME + "= ?", // selection
-                selectionArgs,
-                null); // sortOrder
-        if (cursor == null) {
-            Log.d(TAG, "Error when retrieving data from content provider");
-        } else if (cursor.getCount() < 1) {
-            // nothing found
-            cursor.close();
-        } else {
-            results.list = new ArrayList<>();
-            String expansion;
-            String comment;
-            long insertedDate;
-            while (cursor.moveToNext()) {
-                expansion = cursor.getString(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_DEFINITION));
-                comment = cursor.getString(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_COMMENT));
-                insertedDate = cursor.getLong(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_INSERTION_DATE));
-                results.list.add(new Acronym.Builder(name, expansion)
-                        .comment(comment)
-                        .create());
-                oldestDate = Math.min(insertedDate, oldestDate);
-            }
-            cursor.close();
-        }
-
-        // check expiration date
-        if (results.list != null) {
-            if (oldestDate + EXPIRATION_PERIOD < System.currentTimeMillis()) {
-                // data is too old
-                results.list = null;
-                results.hasExpired = true;
-            }
-        }
-
-        return results;
-    }
-
-    // remove the acronym list from the cache
-    private void removeFromCache(Collection<Acronym> acronyms) {
-        int deleted = 0;
-        for (Acronym acronym : acronyms) {
-            deleted += deleteByName(acronym.getName());
-        }
-        Log.d(TAG, deleted + " element(s) deleted from content provider");
-    }
-
-    // delete elements from the content provider
-    private int deleteByName(String name) {
-        String[] selectionArgs = { name };
-        return getContentResolver().delete(
-                AcronymProvider.CONTENT_URI,
-                AcronymProvider.Metadata.COLUMN_NAME + "= ?",
-                selectionArgs);
-    }
-
-    // add the acronym list to the cache
-    private void addToCache(Collection<Acronym> acronyms, boolean doDeletePrevious) {
-
-        if (acronyms == null) {
-            return;
-        }
-
-        // delete previous items
-        if (doDeletePrevious) {
-            removeFromCache(acronyms);
-        }
-
-        // add the new ones
-        for (Acronym acronym : acronyms) {
-            addElement(acronym);
-        }
-    }
-
-    // add one element to the content provider
-    private void addElement(Acronym acronym) {
-        // create the values
-        ContentValues values = new ContentValues();
-        values.put(AcronymProvider.Metadata.COLUMN_NAME, acronym.getName());
-        values.put(AcronymProvider.Metadata.COLUMN_DEFINITION, acronym.getExpansion());
-        if (!TextUtils.isEmpty(acronym.getComment())) {
-            values.put(AcronymProvider.Metadata.COLUMN_COMMENT, acronym.getComment());
-        }
-        values.put(AcronymProvider.Metadata.COLUMN_INSERTION_DATE, System.currentTimeMillis());
-
-        // insert the values
-        getContentResolver().insert(AcronymProvider.CONTENT_URI, values);
-        Log.d(TAG, "inserted " + acronym.getName() + "(" + acronym.getExpansion() + ")");
     }
 
     // retrieve the acronym from the server, performing an HTTP request

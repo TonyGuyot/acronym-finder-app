@@ -1,4 +1,4 @@
-package io.github.tonyguyot.acronym;
+package io.github.tonyguyot.acronym.operations;
 
 import android.util.Log;
 
@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import io.github.tonyguyot.acronym.AcronymXmlParser;
 import io.github.tonyguyot.acronym.data.Acronym;
 
 /**
