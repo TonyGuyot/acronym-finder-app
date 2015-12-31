@@ -8,9 +8,11 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import io.github.tonyguyot.acronym.AcronymService;
 import io.github.tonyguyot.acronym.data.Acronym;
+import io.github.tonyguyot.acronym.data.AcronymList;
 import io.github.tonyguyot.acronym.provider.AcronymProvider;
 
 /**
@@ -33,8 +35,10 @@ public class AcronymCacheMediator {
     }
 
     // search the acronym in the cache and check that it is still valid
-    public AcronymService.Result retrieveFromCache(String name, long expirationPeriod) {
-        AcronymService.Result results = new AcronymService.Result();
+    public AcronymList retrieveFromCache(String name, long expirationPeriod) {
+        AcronymList results = new AcronymList();
+
+        // prepare parameters
         long oldestDate = Long.MAX_VALUE;
         String[] projection = {
                 AcronymProvider.Metadata.COLUMN_NAME,
@@ -45,19 +49,25 @@ public class AcronymCacheMediator {
         String[] selectionArgs = {
                 name,
         };
+
+        // perform the query
         Cursor cursor = mContext.getContentResolver().query(
                 AcronymProvider.CONTENT_URI,
                 projection,
                 AcronymProvider.Metadata.COLUMN_NAME + "= ?", // selection
                 selectionArgs,
                 null); // sortOrder
+
+        // process results
         if (cursor == null) {
             Log.d(TAG, "Error when retrieving data from content provider");
+            // TODO: set an error as response
         } else if (cursor.getCount() < 1) {
             // nothing found
+            // TODO: return empty list
             cursor.close();
         } else {
-            results.list = new ArrayList<>();
+            List<Acronym> list = new ArrayList<>();
             String expansion;
             String comment;
             long insertedDate;
@@ -65,20 +75,20 @@ public class AcronymCacheMediator {
                 expansion = cursor.getString(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_DEFINITION));
                 comment = cursor.getString(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_COMMENT));
                 insertedDate = cursor.getLong(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_INSERTION_DATE));
-                results.list.add(new Acronym.Builder(name, expansion)
+                list.add(new Acronym.Builder(name, expansion)
                         .comment(comment)
                         .create());
                 oldestDate = Math.min(insertedDate, oldestDate);
             }
             cursor.close();
+            results.setContent(list);
         }
 
         // check expiration date
-        if (results.list != null) {
+        if (results.getContent() != null) {
             if (oldestDate + expirationPeriod < System.currentTimeMillis()) {
                 // data is too old
-                results.list = null;
-                results.hasExpired = true;
+                results.setAsExpired();
             }
         }
 

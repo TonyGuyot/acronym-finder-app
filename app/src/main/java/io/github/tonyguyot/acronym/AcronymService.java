@@ -2,22 +2,19 @@ package io.github.tonyguyot.acronym;
 
 import android.app.Activity;
 import android.app.IntentService;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Context;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import io.github.tonyguyot.acronym.data.Acronym;
+import io.github.tonyguyot.acronym.data.AcronymList;
 import io.github.tonyguyot.acronym.operations.AcronymCacheMediator;
 import io.github.tonyguyot.acronym.operations.AcronymHttpMediator;
-import io.github.tonyguyot.acronym.provider.AcronymProvider;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -52,26 +49,11 @@ public class AcronymService extends IntentService {
     // parameter for the response error information (mandatory if error)
     private static final String EXTRA_ERROR_CODE = PREFIX + "extra.ERROR_CODE";
 
-    // possible values for the error
-    private static final int ERROR_CODE_NETWORK = -1;
-    private static final int ERROR_CODE_PARSING = -2;
-    private static final int ERROR_CODE_UNKNOWN = -3;
-    // ...other error codes are HTTP error codes
+    // additional error code in case of HTTP error
+    private static final String EXTRA_HTTP_RESPONSE = PREFIX + "extra.HTTP_RESPONSE";
 
     // expiration period for the data in the cache (in milliseconds)
     private static final long EXPIRATION_PERIOD = 5*24*60*60*1000; // 5 days
-
-    // inner class for a response
-    public static class Result {
-        public ArrayList<Acronym> list;
-        public int errorCode;
-        public boolean hasExpired;
-        public Result() {
-            list = null;
-            errorCode = 0;
-            hasExpired = false;
-        }
-    }
 
     // mandatory constructor for a service
     public AcronymService() {
@@ -132,21 +114,21 @@ public class AcronymService extends IntentService {
     // extract error code from the reply intent
     public static boolean isNetworkError(Intent intent) {
         return NOTIFICATION.equals(intent.getAction())
-            && intent.getIntExtra(EXTRA_ERROR_CODE, ERROR_CODE_UNKNOWN) == ERROR_CODE_NETWORK;
+            && intent.getIntExtra(EXTRA_ERROR_CODE, 0) == AcronymList.Status.STATUS_ERROR_NETWORK;
     }
     public static boolean isParsingError(Intent intent) {
         return NOTIFICATION.equals(intent.getAction())
-                && intent.getIntExtra(EXTRA_ERROR_CODE, ERROR_CODE_UNKNOWN) == ERROR_CODE_PARSING;
+                && intent.getIntExtra(EXTRA_ERROR_CODE, 0) == AcronymList.Status.STATUS_ERROR_PARSING;
     }
     public static boolean isHttpError(Intent intent) {
         return NOTIFICATION.equals(intent.getAction())
-                && intent.getIntExtra(EXTRA_ERROR_CODE, ERROR_CODE_UNKNOWN) > 0;
+                && intent.getIntExtra(EXTRA_ERROR_CODE, 0) == AcronymList.Status.STATUS_ERROR_COMMUNICATION;
     }
     public static int getHttpResponse(Intent intent) {
         if (NOTIFICATION.equals(intent.getAction())) {
-            return intent.getIntExtra(EXTRA_ERROR_CODE, ERROR_CODE_UNKNOWN);
+            return intent.getIntExtra(EXTRA_HTTP_RESPONSE, 200);
         } else {
-            return ERROR_CODE_UNKNOWN;
+            return 200;
         }
     }
 
@@ -174,7 +156,7 @@ public class AcronymService extends IntentService {
             success = false;
         }
 
-        Result results = new Result();
+        AcronymList results;
         boolean newData = false;
         if (success) {
             // first try to retrieve the information from the cache
@@ -182,60 +164,67 @@ public class AcronymService extends IntentService {
             results = cache.retrieveFromCache(acronym, EXPIRATION_PERIOD);
 
             // if not found in cache or expired, access network
-            if (results.list == null) {
+            if (results.getContent() == null || results.isExpired()) {
                 results = retrieveFromServer(acronym);
                 newData = true;
             }
 
             // if retrieved from network, then add in cache
             if (newData) {
-                cache.addToCache(results.list, results.hasExpired);
+                cache.addToCache(results.getContent(), results.isExpired());
             }
+        } else {
+            results = new AcronymList();
+            results.setStatus(AcronymList.Status.STATUS_INVALID_DATA);
         }
 
         // broadcast result back to sender
-        if (results.list != null) {
-            publishResultsSuccess(acronym, results.list);
+        if (results.getContent() != null) {
+            publishResultsSuccess(acronym, results.getContent());
         } else {
-            publishResultsFailure(acronym, results.errorCode);
+            publishResultsFailure(acronym, results.getStatus(), results.getAdditionalStatus());
         }
     }
 
     // retrieve the acronym from the server, performing an HTTP request
-    private Result retrieveFromServer(String acronym) {
-        Result results = new Result();
+    private AcronymList retrieveFromServer(String acronym) {
+        AcronymList results = new AcronymList();
         AcronymHttpMediator mediator = new AcronymHttpMediator();
         AcronymHttpMediator.Response resp = mediator.retrieveAcronymDefinitions(acronym);
-        results.list = resp.mResults;
+        results.setContent(resp.mResults);
         switch (resp.mStatus) {
             case AcronymHttpMediator.Response.NETWORK_ERROR:
-                results.errorCode = ERROR_CODE_NETWORK;
+                results.setStatus(AcronymList.Status.STATUS_ERROR_NETWORK);
                 break;
             case AcronymHttpMediator.Response.PARSE_ERROR:
-                results.errorCode = ERROR_CODE_PARSING;
+                results.setStatus(AcronymList.Status.STATUS_ERROR_PARSING);
                 break;
             case AcronymHttpMediator.Response.HTTP_ERROR:
-                results.errorCode = resp.mHttpResponse;
+                results.setStatus(AcronymList.Status.STATUS_ERROR_COMMUNICATION);
                 break;
         }
         return results;
     }
 
     // publish the results using a local broadcast receiver
-    private void publishResultsSuccess(String acronym, ArrayList<Acronym> results) {
+    private void publishResultsSuccess(String acronym, List<Acronym> results) {
         Intent intent = new Intent(NOTIFICATION);
         intent.putExtra(EXTRA_ACRONYM_NAME, acronym);
-        intent.putExtra(EXTRA_ACRONYM_LIST, results);
+        intent.putExtra(EXTRA_ACRONYM_LIST, results.toArray());
         intent.putExtra(EXTRA_RESULT_STATUS, Activity.RESULT_OK);
 
         sendBroadcast(intent);
     }
 
     // publish the error code using a local broadcast receiver
-    private void publishResultsFailure(String acronym, int errorCode) {
+    private void publishResultsFailure(String acronym, int errorCode,
+                                       int additionalErrorCode) {
         Intent intent = new Intent(NOTIFICATION);
         intent.putExtra(EXTRA_ACRONYM_NAME, acronym);
         intent.putExtra(EXTRA_ERROR_CODE, errorCode);
+        if (errorCode == AcronymList.Status.STATUS_ERROR_COMMUNICATION) {
+            intent.putExtra(EXTRA_HTTP_RESPONSE, additionalErrorCode);
+        }
         intent.putExtra(EXTRA_RESULT_STATUS, Activity.RESULT_CANCELED);
 
         sendBroadcast(intent);
