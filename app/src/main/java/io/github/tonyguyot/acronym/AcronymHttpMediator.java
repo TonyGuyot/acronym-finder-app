@@ -14,9 +14,10 @@ import java.util.ArrayList;
 import io.github.tonyguyot.acronym.data.Acronym;
 
 /**
- * This class provides the actions which are possible on an acronym.
+ * This class provides the actual HTTP-related actions
+ * which are possible on an acronym.
  */
-public class AcronymMediator {
+public class AcronymHttpMediator {
 
     // inner class to define a response
     public static class Response {

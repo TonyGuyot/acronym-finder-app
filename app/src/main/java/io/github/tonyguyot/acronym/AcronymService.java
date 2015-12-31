@@ -306,17 +306,17 @@ public class AcronymService extends IntentService {
     // retrieve the acronym from the server, performing an HTTP request
     private Result retrieveFromServer(String acronym) {
         Result results = new Result();
-        AcronymMediator mediator = new AcronymMediator();
-        AcronymMediator.Response resp = mediator.retrieveAcronymDefinitions(acronym);
+        AcronymHttpMediator mediator = new AcronymHttpMediator();
+        AcronymHttpMediator.Response resp = mediator.retrieveAcronymDefinitions(acronym);
         results.list = resp.mResults;
         switch (resp.mStatus) {
-            case AcronymMediator.Response.NETWORK_ERROR:
+            case AcronymHttpMediator.Response.NETWORK_ERROR:
                 results.errorCode = ERROR_CODE_NETWORK;
                 break;
-            case AcronymMediator.Response.PARSE_ERROR:
+            case AcronymHttpMediator.Response.PARSE_ERROR:
                 results.errorCode = ERROR_CODE_PARSING;
                 break;
-            case AcronymMediator.Response.HTTP_ERROR:
+            case AcronymHttpMediator.Response.HTTP_ERROR:
                 results.errorCode = resp.mHttpResponse;
                 break;
         }
