@@ -1,5 +1,6 @@
 package io.github.tonyguyot.acronym.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +38,7 @@ public class AcronymList {
 
     // the list of acronyms (may be empty)
     // or null if the list could not be retrieved
-    private List<Acronym> mContent;
+    private ArrayList<Acronym> mContent;
 
     // status of the list: OK or ERROR
     private int mStatus;
@@ -67,11 +68,11 @@ public class AcronymList {
     // getters and setters:
     //
 
-    public List<Acronym> getContent() {
+    public ArrayList<Acronym> getContent() {
         return mContent;
     }
 
-    public void setContent(List<Acronym> content) {
+    public void setContent(ArrayList<Acronym> content) {
         mContent = content;
     }
 

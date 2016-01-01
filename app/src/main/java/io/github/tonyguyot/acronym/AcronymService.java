@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -112,7 +113,7 @@ public class AcronymService extends IntentService {
         }
 
         // create a new reply intent to notify success
-        public static Intent makeIntentSuccess(String acronymName, Object[] results) {
+        public static Intent makeIntentSuccess(String acronymName, ArrayList<Acronym> results) {
             Intent intent = new Intent(ACTION_NOTIFICATION);
             intent.putExtra(EXTRA_ACRONYM_NAME, acronymName);
             intent.putExtra(EXTRA_ACRONYM_LIST, results);
@@ -261,8 +262,8 @@ public class AcronymService extends IntentService {
     }
 
     // publish the results using a local broadcast receiver
-    private void publishResultsSuccess(String acronymName, List<Acronym> results) {
-        Intent intent = ReplyIntent.makeIntentSuccess(acronymName, results.toArray());
+    private void publishResultsSuccess(String acronymName, ArrayList<Acronym> results) {
+        Intent intent = ReplyIntent.makeIntentSuccess(acronymName, results);
         sendBroadcast(intent);
     }
 

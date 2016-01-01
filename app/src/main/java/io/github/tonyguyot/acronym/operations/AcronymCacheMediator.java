@@ -67,7 +67,7 @@ public class AcronymCacheMediator {
             // TODO: return empty list
             cursor.close();
         } else {
-            List<Acronym> list = new ArrayList<>();
+            ArrayList<Acronym> list = new ArrayList<>();
             String expansion;
             String comment;
             long insertedDate;
