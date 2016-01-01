@@ -23,7 +23,7 @@ public class AcronymHttpMediator {
     private static final String TAG = "AcronymMediator";
 
     // Url of the acronym server
-    public static final String SILMARIL_SERVER = "http://acronyms.silmaril.ie/cgi-bin/uncgi/xaa?";
+    public static final String SILMARIL_SERVER = "http://acronyms.silmaril.ie/cgi-bin/xaa?";
 
     // connect to the server to retrieve the list of definitions for the
     // given acronym
