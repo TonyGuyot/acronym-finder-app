@@ -97,7 +97,7 @@ public class QueryFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().registerReceiver(mReceiver, AcronymService.getIntentFilter());
+        getActivity().registerReceiver(mReceiver, AcronymService.ReplyIntent.getIntentFilter());
     }
 
     @Override
@@ -123,7 +123,7 @@ public class QueryFragment extends Fragment {
     private void onResultReceived(Intent intent) {
         // display the new results
         hideInProgress();
-        if (AcronymService.getResultStatus(intent) == Activity.RESULT_OK) {
+        if (AcronymService.ReplyIntent.getResultStatus(intent) == Activity.RESULT_OK) {
            onResultSuccess(intent); // we received an answer with 0 or more results
         } else {
            onResultFailed(intent); // network failure, no answer received
@@ -132,8 +132,8 @@ public class QueryFragment extends Fragment {
 
     // received notification about acronym search success
     private void onResultSuccess(Intent intent) {
-        Collection<Acronym> results = AcronymService.getResultList(intent);
-        String acronym = AcronymService.getAcronymName(intent);
+        Collection<Acronym> results = AcronymService.ReplyIntent.getResultList(intent);
+        String acronym = AcronymService.ReplyIntent.getAcronymName(intent);
 
         if (results != null) {
             Log.d(TAG, results.toString());
@@ -169,12 +169,12 @@ public class QueryFragment extends Fragment {
 
     // received notification about acronym search failed
     private void onResultFailed(Intent intent) {
-        if (AcronymService.isNetworkError(intent)) {
+        if (AcronymService.ReplyIntent.isNetworkError(intent)) {
             mTvResultStatus.setText(R.string.query_error_server);
-        } else if (AcronymService.isParsingError(intent)) {
+        } else if (AcronymService.ReplyIntent.isParsingError(intent)) {
             mTvResultStatus.setText(R.string.query_error_parse);
-        } else if (AcronymService.isHttpError(intent)) {
-            int httpCode = AcronymService.getHttpResponse(intent);
+        } else if (AcronymService.ReplyIntent.isHttpError(intent)) {
+            int httpCode = AcronymService.ReplyIntent.getHttpResponse(intent);
             Resources res = getResources();
             String text = String.format(res.getString(R.string.query_error_response), httpCode);
             mTvResultStatus.setText(text);
