@@ -9,42 +9,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 
 import io.github.tonyguyot.acronym.AcronymXmlParser;
-import io.github.tonyguyot.acronym.data.Acronym;
+import io.github.tonyguyot.acronym.data.AcronymList;
 
 /**
  * This class provides the actual HTTP-related actions
  * which are possible on an acronym.
  */
 public class AcronymHttpMediator {
-
-    // inner class to define a response
-    public static class Response {
-
-        // constants for the possible statuses
-        public static final int OK = 1;
-        public static final int NETWORK_ERROR = 2;
-        public static final int PARSE_ERROR = 3;
-        public static final int HTTP_ERROR = 4;
-
-        // the general status (see constants above)
-        public int mStatus;
-
-        // the HTTP response code
-        public int mHttpResponse;
-
-        // the list of retrieved acronyms (or null if error)
-        public ArrayList<Acronym> mResults;
-
-        // constructor
-        Response() {
-            mStatus = OK;
-            mHttpResponse = -1;
-            mResults = null;
-        }
-    }
 
     // Tag for logging information
     private static final String TAG = "AcronymMediator";
@@ -54,28 +27,28 @@ public class AcronymHttpMediator {
 
     // connect to the server to retrieve the list of definitions for the
     // given acronym
-    public Response retrieveAcronymDefinitions(String acronym) {
-        Response response = new Response();
+    public AcronymList retrieveFromServer(String acronym) {
+        AcronymList response = new AcronymList();
         try {
             final URL url = new URL(SILMARIL_SERVER + acronym);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             try {
-                response.mHttpResponse =  conn.getResponseCode();
+                response.setAdditionalStatus(conn.getResponseCode());
                 InputStream in = new BufferedInputStream(conn.getInputStream());
-                response.mResults = AcronymXmlParser.parse(in);
+                response.setContent(AcronymXmlParser.parse(in));
             } catch (XmlPullParserException e) {
                 Log.d(TAG, "Error: cannot parse XML response.");
-                response.mStatus = Response.PARSE_ERROR;
+                response.setStatus(AcronymList.Status.STATUS_ERROR_PARSING);
             } catch (IOException e) {
                 Log.d(TAG, "Error: did not receive response from server.");
-                response.mStatus = Response.HTTP_ERROR;
+                response.setStatus(AcronymList.Status.STATUS_ERROR_COMMUNICATION);
             } finally {
                 conn.disconnect();
             }
 
         } catch (IOException e) {
             Log.d(TAG, "Error: cannot connect to the server.");
-            response.mStatus = Response.NETWORK_ERROR;
+            response.setStatus(AcronymList.Status.STATUS_ERROR_NETWORK);
         }
         return response;
     }

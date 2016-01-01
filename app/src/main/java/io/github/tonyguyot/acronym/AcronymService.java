@@ -139,7 +139,16 @@ public class AcronymService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             if (ACTION_GET_ACRONYM.equals(intent.getAction())) {
-                doRetrieveAcronymDefinitions(intent.getStringExtra(EXTRA_ACRONYM_NAME));
+                // perform the operation
+                String acronymName = intent.getStringExtra(EXTRA_ACRONYM_NAME);
+                AcronymList results = doRetrieveAcronymDefinitions(acronymName);
+
+                // broadcast result back to sender
+                if (results.getContent() != null) {
+                    publishResultsSuccess(acronymName, results.getContent());
+                } else {
+                    publishResultsFailure(acronymName, results.getStatus(), results.getAdditionalStatus());
+                }
             } else {
                 Log.d(TAG, "Unknown action received");
             }
@@ -148,7 +157,7 @@ public class AcronymService extends IntentService {
         }
     }
 
-    public void doRetrieveAcronymDefinitions(String acronym) {
+    public AcronymList doRetrieveAcronymDefinitions(String acronym) {
 
         boolean success = true;
         if (acronym == null || acronym.isEmpty()) {
@@ -163,9 +172,10 @@ public class AcronymService extends IntentService {
             AcronymCacheMediator cache = new AcronymCacheMediator(getApplicationContext());
             results = cache.retrieveFromCache(acronym, EXPIRATION_PERIOD);
 
-            // if not found in cache or expired, access network
+            // if not found in cache or expired => access network
             if (results.getContent() == null || results.isExpired()) {
-                results = retrieveFromServer(acronym);
+                AcronymHttpMediator mediator = new AcronymHttpMediator();
+                results = mediator.retrieveFromServer(acronym);
                 newData = true;
             }
 
@@ -176,32 +186,6 @@ public class AcronymService extends IntentService {
         } else {
             results = new AcronymList();
             results.setStatus(AcronymList.Status.STATUS_INVALID_DATA);
-        }
-
-        // broadcast result back to sender
-        if (results.getContent() != null) {
-            publishResultsSuccess(acronym, results.getContent());
-        } else {
-            publishResultsFailure(acronym, results.getStatus(), results.getAdditionalStatus());
-        }
-    }
-
-    // retrieve the acronym from the server, performing an HTTP request
-    private AcronymList retrieveFromServer(String acronym) {
-        AcronymList results = new AcronymList();
-        AcronymHttpMediator mediator = new AcronymHttpMediator();
-        AcronymHttpMediator.Response resp = mediator.retrieveAcronymDefinitions(acronym);
-        results.setContent(resp.mResults);
-        switch (resp.mStatus) {
-            case AcronymHttpMediator.Response.NETWORK_ERROR:
-                results.setStatus(AcronymList.Status.STATUS_ERROR_NETWORK);
-                break;
-            case AcronymHttpMediator.Response.PARSE_ERROR:
-                results.setStatus(AcronymList.Status.STATUS_ERROR_PARSING);
-                break;
-            case AcronymHttpMediator.Response.HTTP_ERROR:
-                results.setStatus(AcronymList.Status.STATUS_ERROR_COMMUNICATION);
-                break;
         }
         return results;
     }
