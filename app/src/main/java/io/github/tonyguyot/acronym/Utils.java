@@ -50,6 +50,8 @@ public class Utils {
     // TODO
 
 
+    // ------ KEYBOARD RELATED METHODS -----
+
     /**
      * This method is used to hide a keyboard after a user has
      * finished typing in a text box.
@@ -58,6 +60,14 @@ public class Utils {
                                     IBinder windowToken) {
         getInputMethodManager(activity).hideSoftInputFromWindow(windowToken, 0);
     }
+
+    // display the keyboard
+    public static void showKeyboard(Activity activity) {
+        getInputMethodManager(activity).toggleSoftInput(InputMethodManager.SHOW_FORCED,
+                InputMethodManager.HIDE_IMPLICIT_ONLY);
+    }
+
+
 
     // NETWORK INFORMATION
 

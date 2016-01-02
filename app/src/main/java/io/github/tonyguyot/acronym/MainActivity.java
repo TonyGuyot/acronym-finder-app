@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         title.setTypeface(tf);
 
         // set the tabs and view pager
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
         TabLayout tabLayout = (TabLayout) toolbar.findViewById(R.id.toolbar_tabs);
@@ -46,8 +47,14 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                // select the first tab
+                viewPager.setCurrentItem(0);
+
+                // set focus on edit text, clear it and display keyboard
+                EditText ed = (EditText) viewPager.findViewById(R.id.query_entry);
+                ed.requestFocus();
+                ed.setText("");
+                Utils.showKeyboard(MainActivity.this);
             }
         });
     }
