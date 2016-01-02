@@ -1,6 +1,7 @@
 package io.github.tonyguyot.acronym;
 
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,8 +56,11 @@ public class QueryAdapter extends RecyclerView.Adapter<QueryAdapter.ViewHolder> 
         // replace the content of the view with a new element
         final Acronym item = mDataSet.get(position);
         holder.mDescription.setText(item.getExpansion());
-        if (item.getComment() != null) {
+        if (!TextUtils.isEmpty(item.getComment())) {
+            holder.mComment.setVisibility(View.VISIBLE);
             holder.mComment.setText(item.getComment());
+        } else {
+            holder.mComment.setVisibility(View.GONE);
         }
     }
 

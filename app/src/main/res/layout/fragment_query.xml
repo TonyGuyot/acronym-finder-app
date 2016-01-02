@@ -7,16 +7,18 @@
     tools:context="io.github.tonyguyot.acronym.QueryFragment"
     >
 
-    <!-- First part: information about the app -->
+    <!-- text field giving information about the app -->
     <TextView
         android:id="@+id/query_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/app_description"
         android:gravity="center_horizontal"
+        android:textSize="16sp"
+        android:padding="6dp"
         />
 
-    <!-- Second part: the query text box -->
+    <!-- the query text box with the submit button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -41,7 +43,7 @@
             />
     </LinearLayout>
 
-    <!-- Third part: the result list -->
+    <!-- progress indicator, displayed only when search is in progress -->
     <ProgressBar
         android:id="@+id/query_progress"
         android:layout_width="wrap_content"
@@ -50,13 +52,18 @@
         android:visibility="gone"
         />
 
+    <!-- result summary: show number of results or error message -->
     <TextView
         android:id="@+id/query_result"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/query_no_query"
+        android:gravity="center_horizontal"
+        android:textSize="16sp"
+        android:padding="6dp"
         />
 
+    <!-- list of definitions found, if any -->
     <android.support.v7.widget.RecyclerView
         android:id="@+id/query_list"
         android:layout_width="match_parent"

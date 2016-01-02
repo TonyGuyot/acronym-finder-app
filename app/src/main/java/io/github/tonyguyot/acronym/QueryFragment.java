@@ -22,6 +22,7 @@ import android.widget.TextView;
 import java.util.Collection;
 
 import io.github.tonyguyot.acronym.data.Acronym;
+import io.github.tonyguyot.acronym.ui.DividerItemDecoration;
 
 
 /**
@@ -79,6 +80,9 @@ public class QueryFragment extends Fragment {
         // initialize the recycler view for the list of results
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.query_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        RecyclerView.ItemDecoration itemDecoration = new
+                DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST);
+        recyclerView.addItemDecoration(itemDecoration);
         mAdapter = new QueryAdapter();
         recyclerView.setAdapter(mAdapter);
 
@@ -158,6 +162,7 @@ public class QueryFragment extends Fragment {
             // display all the results in the list
             int pos = 0;
             for (Acronym item : results) {
+                Log.d(TAG, "adding " + item.getExpansion() + "(" + item.getComment() + ")");
                 mAdapter.add(pos, item);
                 pos++;
             }

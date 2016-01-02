@@ -74,7 +74,7 @@ public class AcronymXmlParser {
 
             // a new text has been encountered
             if (eventType == XmlPullParser.TEXT) {
-                text = parser.getText();
+                text = parser.getText().trim();
             }
 
             // a new end tag has been encountered
