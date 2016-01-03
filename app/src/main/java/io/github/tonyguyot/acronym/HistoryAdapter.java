@@ -79,8 +79,21 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         // replace the content of the view with a new element
         final String name = mDataIndex.get(position);
         final Set<String> content = mDataSet.get(name);
+        final TextView definitionsText = holder.definitions;
 
+        // put the name in the first textview
+        // the name is always visible
         holder.name.setText(name);
+        holder.name.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                definitionsText.setVisibility(View.VISIBLE);
+            }
+        });
+
+        // put the definitions in the second textview
+        // the definitions are invisible by default but becomes visible when
+        // the user clicks on the name
         StringBuilder definitions = new StringBuilder();
         boolean start = true;
         for (String def : content) {
@@ -93,6 +106,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         }
         holder.definitions.setText(definitions);
         holder.definitions.setVisibility(View.GONE); // not displayed by default
+        holder.definitions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                definitionsText.setVisibility(View.GONE);
+            }
+        });
     }
 
     @Override

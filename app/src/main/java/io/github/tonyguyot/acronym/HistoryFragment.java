@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,9 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -26,7 +22,7 @@ import io.github.tonyguyot.acronym.ui.DividerItemDecoration;
 /**
  * A fragment representing a list of Items.
  */
-public class HistoryFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class HistoryFragment extends Fragment {
 
     // tag for logging information
     private static final String TAG = "AcronymHistoryFragment";
@@ -39,9 +35,6 @@ public class HistoryFragment extends Fragment implements AbsListView.OnItemClick
 
     // the adapter for the list of results
     private HistoryAdapter mAdapter;
-
-    // the progress indicator to show that search is being performed
-    private ProgressBar mProgress;
 
     // define the broadcast receiver for the results of acronym listing
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -72,7 +65,6 @@ public class HistoryFragment extends Fragment implements AbsListView.OnItemClick
 
         // retrieve the different UI items we need to interact with
         mMessageText = (TextView) view.findViewById(R.id.history_text);
-        // TODO mProgress = (ProgressBar) view.findViewById(R.id.history_progress);
 
         // initialize the recycler view for the list of results
         mRecyclerView = (RecyclerView) view.findViewById(R.id.history_list);
@@ -84,11 +76,6 @@ public class HistoryFragment extends Fragment implements AbsListView.OnItemClick
         mRecyclerView.setAdapter(mAdapter);
 
         return view;
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        // TODO
     }
 
     @Override
@@ -111,7 +98,6 @@ public class HistoryFragment extends Fragment implements AbsListView.OnItemClick
     // received notification about search result
     private void onResultReceived(Intent intent) {
         // display the new results
-        hideInProgress();
         if (AcronymService.ListIntent.getResultStatus(intent) == Activity.RESULT_OK) {
             onResultSuccess(intent); // we received an answer with 0 or more results
         } else {
@@ -147,22 +133,6 @@ public class HistoryFragment extends Fragment implements AbsListView.OnItemClick
 
     // ------ HELPER METHODS -----
 
-    // set the UI in the "search in progress" mode
-    private void showInProgress() {
-        // clear previous result
-        // TODO mTvResultStatus.setText(R.string.query_in_progress);
-        mAdapter.clear();
-
-        // show the progress indicator
-        // TODO mProgress.setVisibility(View.VISIBLE);
-    }
-
-    // set the UI in the "search completed" mode
-    private void hideInProgress() {
-        // hide the progress indicator
-        // TODO mProgress.setVisibility(View.GONE);
-    }
-
     // display an information message
     private void setMessageText(int resId) {
         mMessageText.setVisibility(View.VISIBLE);
@@ -174,6 +144,7 @@ public class HistoryFragment extends Fragment implements AbsListView.OnItemClick
     private void setResultList(ArrayList<Acronym> list) {
         mMessageText.setVisibility(View.INVISIBLE);
         mRecyclerView.setVisibility(View.VISIBLE);
+        mAdapter.clear();
         mAdapter.update(list);
     }
 }
