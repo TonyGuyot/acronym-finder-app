@@ -28,4 +28,8 @@
     <string name="query_error_parse">Error: cannot decode response from server</string>
     <string name="query_error_response">Error: did not receive response from server (HTTP error %d)</string>
     <string name="query_error_other">An error occurred</string>
+
+    <!-- history fragment -->
+    <string name="history_empty">History is empty</string>
+    <string name="history_error">Could not retrieve history!</string>
 </resources>

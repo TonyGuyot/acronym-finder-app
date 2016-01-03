@@ -8,9 +8,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import io.github.tonyguyot.acronym.AcronymService;
 import io.github.tonyguyot.acronym.data.Acronym;
 import io.github.tonyguyot.acronym.data.AcronymList;
 import io.github.tonyguyot.acronym.provider.AcronymProvider;
@@ -34,8 +32,13 @@ public class AcronymCacheMediator {
         mContext = context;
     }
 
+    // search all acronyms in the cache
+    public AcronymList retrieveAllFromCache() {
+        return retrieveFromCache(null, -1L);
+    }
+
     // search the acronym in the cache and check that it is still valid
-    public AcronymList retrieveFromCache(String name, long expirationPeriod) {
+    public AcronymList retrieveFromCache(String acronymName, long expirationPeriod) {
         AcronymList results = new AcronymList();
 
         // prepare parameters
@@ -46,32 +49,41 @@ public class AcronymCacheMediator {
                 AcronymProvider.Metadata.COLUMN_COMMENT,
                 AcronymProvider.Metadata.COLUMN_INSERTION_DATE,
         };
+        String selection = AcronymProvider.Metadata.COLUMN_NAME + "= ?";
         String[] selectionArgs = {
-                name,
+                acronymName,
         };
+        if (TextUtils.isEmpty(acronymName)) {
+            selection = null;
+            selectionArgs = null;
+        }
 
         // perform the query
         Cursor cursor = mContext.getContentResolver().query(
                 AcronymProvider.CONTENT_URI,
                 projection,
-                AcronymProvider.Metadata.COLUMN_NAME + "= ?", // selection
+                selection,
                 selectionArgs,
                 null); // sortOrder
 
         // process results
         if (cursor == null) {
             Log.d(TAG, "Error when retrieving data from content provider");
-            // TODO: set an error as response
+            results.setStatus(AcronymList.Status.STATUS_ERROR_SYSTEM);
         } else if (cursor.getCount() < 1) {
             // nothing found
-            // TODO: return empty list
+            Log.d(TAG, "No result found for: " + acronymName);
+            results.setContent(new ArrayList<Acronym>());
             cursor.close();
         } else {
+            Log.d(TAG, cursor.getCount() + " results found for: " + acronymName);
             ArrayList<Acronym> list = new ArrayList<>();
+            String name;
             String expansion;
             String comment;
             long insertedDate;
             while (cursor.moveToNext()) {
+                name = cursor.getString(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_NAME));
                 expansion = cursor.getString(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_DEFINITION));
                 comment = cursor.getString(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_COMMENT));
                 insertedDate = cursor.getLong(cursor.getColumnIndex(AcronymProvider.Metadata.COLUMN_INSERTION_DATE));
@@ -79,16 +91,20 @@ public class AcronymCacheMediator {
                         .comment(comment)
                         .create());
                 oldestDate = Math.min(insertedDate, oldestDate);
+                Log.d(TAG, "found " + name + " (" + expansion + ") from content provider");
             }
             cursor.close();
             results.setContent(list);
         }
 
         // check expiration date
-        if (results.getContent() != null) {
-            if (oldestDate + expirationPeriod < System.currentTimeMillis()) {
-                // data is too old
-                results.setAsExpired();
+        if (expirationPeriod > 0L) {
+            if (results.getContent() != null && !results.getContent().isEmpty()) {
+                if (oldestDate + expirationPeriod < System.currentTimeMillis()) {
+                    // data is too old
+                    Log.d(TAG, "mark data as expired");
+                    results.setAsExpired();
+                }
             }
         }
 
@@ -99,6 +115,7 @@ public class AcronymCacheMediator {
     public void removeFromCache(Collection<Acronym> acronyms) {
         int deleted = 0;
         for (Acronym acronym : acronyms) {
+            // TODO: optimize -> do not delete several time same name
             deleted += deleteByName(acronym.getName());
         }
         Log.d(TAG, deleted + " element(s) deleted from content provider");
@@ -144,6 +161,6 @@ public class AcronymCacheMediator {
 
         // insert the values
         mContext.getContentResolver().insert(AcronymProvider.CONTENT_URI, values);
-        Log.d(TAG, "inserted " + acronym.getName() + "(" + acronym.getExpansion() + ")");
+        Log.d(TAG, "inserted " + acronym.getName() + " (" + acronym.getExpansion() + ")");
     }
 }

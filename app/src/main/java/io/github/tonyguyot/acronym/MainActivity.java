@@ -3,7 +3,6 @@ package io.github.tonyguyot.acronym;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -30,7 +29,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         // set custom font for the app title
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/Lobster-Regular.ttf");
         title.setTypeface(tf);
@@ -61,11 +62,22 @@ public class MainActivity extends AppCompatActivity {
 
     // helper method to setup the view pager
     private void setupViewPager(ViewPager vp) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        final ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addItem(new QueryFragment(), getResources().getString(R.string.tab_query));
         adapter.addItem(new HistoryFragment(), getResources().getString(R.string.tab_history));
         adapter.addItem(new InfoFragment(), getResources().getString(R.string.tab_info));
         vp.setAdapter(adapter);
+        vp.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                // a new page has been displayed
+                // if this page is the history page, then refresh the history list
+                if (position == 1) {
+                    HistoryFragment frag = (HistoryFragment) adapter.getItem(1);
+                    frag.refresh();
+                }
+            }
+        });
     }
 
     // adapter for the view pager

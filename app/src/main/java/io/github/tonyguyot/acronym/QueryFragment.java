@@ -62,13 +62,14 @@ public class QueryFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // TODO: retrieve the previous values
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        // TODO: retrieve the previous values
+
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_query, container, false);
 
@@ -115,11 +116,14 @@ public class QueryFragment extends Fragment {
     // called when the user clicks on the submit button
     // => start the AcronymService to retrieve the acronym expansions
     private void onSubmitButtonClick() {
-        String acronym = mTvQuery.getText().toString();
-        if (!TextUtils.isEmpty(acronym)) {
+        String acronymName = mTvQuery.getText().toString().trim().toUpperCase();
+        // TODO remove any invalid character
+        if (!TextUtils.isEmpty(acronymName)) {
             Utils.hideKeyboard(getActivity(), mTvQuery.getWindowToken());
             showInProgress();
-            AcronymService.start(getContext(), acronym);
+            AcronymService.start(getContext(), acronymName);
+        } else {
+            Log.d(TAG, "invalid data entry -> do nothing");
         }
     }
 
@@ -140,8 +144,6 @@ public class QueryFragment extends Fragment {
         String acronym = AcronymService.ReplyIntent.getAcronymName(intent);
 
         if (results != null) {
-            Log.d(TAG, results.toString());
-
             // display the number of results in the status text view
             Resources res = getResources();
             String text;
@@ -162,7 +164,6 @@ public class QueryFragment extends Fragment {
             // display all the results in the list
             int pos = 0;
             for (Acronym item : results) {
-                Log.d(TAG, "adding " + item.getExpansion() + "(" + item.getComment() + ")");
                 mAdapter.add(pos, item);
                 pos++;
             }

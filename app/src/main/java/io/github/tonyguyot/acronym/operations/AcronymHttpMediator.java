@@ -31,6 +31,7 @@ public class AcronymHttpMediator {
         AcronymList response = new AcronymList();
         try {
             final URL url = new URL(SILMARIL_SERVER + acronym);
+            Log.d(TAG, "fetching " + url.toString());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             try {
                 response.setAdditionalStatus(conn.getResponseCode());
