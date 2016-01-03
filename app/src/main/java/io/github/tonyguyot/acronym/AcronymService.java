@@ -27,7 +27,7 @@ public class AcronymService extends IntentService {
     private static final String TAG = "AcronymService";
 
     // common tag for all cross-entities identifier
-    private static final String PREFIX = "tonyguyot.github.io.acronym.";
+    private static final String PREFIX = "io.github.tonyguyot.acronym.";
 
     // expiration period for the data in the cache (in milliseconds)
     private static final long EXPIRATION_PERIOD = 5*24*60*60*1000; // 5 days
