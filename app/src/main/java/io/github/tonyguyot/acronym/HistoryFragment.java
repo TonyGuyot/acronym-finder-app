@@ -68,7 +68,7 @@ public class HistoryFragment extends Fragment implements AbsListView.OnItemClick
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_acronym_definition, container, false);
+        View view = inflater.inflate(R.layout.fragment_history, container, false);
 
         // retrieve the different UI items we need to interact with
         mMessageText = (TextView) view.findViewById(R.id.history_text);
