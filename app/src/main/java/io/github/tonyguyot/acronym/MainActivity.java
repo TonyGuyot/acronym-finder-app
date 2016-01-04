@@ -70,11 +70,18 @@ public class MainActivity extends AppCompatActivity {
         vp.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                // a new page has been displayed
+                // a new page has been displayed...
+
                 // if this page is the history page, then refresh the history list
                 if (position == 1) {
                     HistoryFragment frag = (HistoryFragment) adapter.getItem(1);
                     frag.refresh();
+                }
+
+                // if the new page is not the query page, then hide keyboard
+                if (position != 0) {
+                    QueryFragment frag = (QueryFragment) adapter.getItem(0);
+                    frag.hideKeyboard();
                 }
             }
         });

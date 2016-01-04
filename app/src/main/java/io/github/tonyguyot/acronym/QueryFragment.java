@@ -119,7 +119,7 @@ public class QueryFragment extends Fragment {
         String acronymName = mTvQuery.getText().toString().trim().toUpperCase();
         // TODO remove any invalid character
         if (!TextUtils.isEmpty(acronymName)) {
-            Utils.hideKeyboard(getActivity(), mTvQuery.getWindowToken());
+            hideKeyboard();
             showInProgress();
             AcronymService.startRetrieveAcronym(getContext(), acronymName);
         } else {
@@ -205,5 +205,10 @@ public class QueryFragment extends Fragment {
     private void hideInProgress() {
         // hide the progress indicator
         mProgress.setVisibility(View.GONE);
+    }
+
+    // remove the keyboard from view if it is displayed
+    public void hideKeyboard() {
+        Utils.hideKeyboard(getActivity(), mTvQuery.getWindowToken());
     }
 }
