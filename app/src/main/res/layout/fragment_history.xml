@@ -1,26 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="io.github.tonyguyot.acronym.HistoryFragment">
+    android:orientation="vertical"
+    tools:context="io.github.tonyguyot.acronym.HistoryFragment"
+    >
 
-    <!-- list of definitions found, if any -->
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/history_list"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        >
+
+        <!-- list of definitions found, if any -->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/history_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            />
+
+        <!-- textual information in case there is no list to display -->
+        <TextView
+            android:id="@+id/history_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="24sp"
+            />
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/history_clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/history_clear"
+        android:layout_gravity="center_horizontal"
         />
 
-    <!-- textual information in case there is no lst to display -->
-    <TextView
-        android:id="@+id/history_text"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:textSize="24sp"
-        />
-
-</FrameLayout>
+</LinearLayout>

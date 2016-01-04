@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -75,6 +76,15 @@ public class HistoryFragment extends Fragment {
         mAdapter = new HistoryAdapter();
         mRecyclerView.setAdapter(mAdapter);
 
+        // define the callback for the button
+        Button clearButton = (Button) view.findViewById(R.id.history_clear);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClearButtonClick();
+            }
+        });
+
         return view;
     }
 
@@ -92,7 +102,7 @@ public class HistoryFragment extends Fragment {
 
     public void refresh() {
         // start the service
-        AcronymService.start(getContext());
+        AcronymService.startListContentOfCache(getContext());
     }
 
     // received notification about search result
@@ -115,6 +125,7 @@ public class HistoryFragment extends Fragment {
             // display the number of results in the status text view
             if (results.isEmpty()) {
                 // no result found
+                mAdapter.clear(); // in case there was something in the list previously
                 setMessageText(R.string.history_empty);
             } else {
                 // one or more results found
@@ -129,6 +140,12 @@ public class HistoryFragment extends Fragment {
     // received notification about acronym list failed
     private void onResultFailed() {
         setMessageText(R.string.history_error);
+    }
+
+    // user has clicked on the clear button
+    private void onClearButtonClick() {
+        // TODO: ask for confirmation
+        AcronymService.startClearCache(getContext());
     }
 
     // ------ HELPER METHODS -----

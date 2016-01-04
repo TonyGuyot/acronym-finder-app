@@ -47,6 +47,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     // update the dataset from a global list of definitions
     public void update(ArrayList<Acronym> flatList) {
+        clear();
         if (flatList != null) {
             for (Acronym item : flatList) {
                 if (TextUtils.isEmpty(item.getName()) || TextUtils.isEmpty(item.getExpansion())) {
@@ -121,6 +122,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     public void clear() {
         mDataSet.clear();
+        mDataIndex.clear();
         notifyDataSetChanged();
     }
 }

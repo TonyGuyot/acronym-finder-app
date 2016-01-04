@@ -8,6 +8,8 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
 
 import io.github.tonyguyot.acronym.data.Acronym;
 import io.github.tonyguyot.acronym.data.AcronymList;
@@ -114,10 +116,22 @@ public class AcronymCacheMediator {
     // remove the acronym list from the cache
     public void removeFromCache(Collection<Acronym> acronyms) {
         int deleted = 0;
+        Set<String> deletedNames = new TreeSet<>();
         for (Acronym acronym : acronyms) {
-            // TODO: optimize -> do not delete several time same name
-            deleted += deleteByName(acronym.getName());
+            if (!deletedNames.contains(acronym.getName())) {
+                deleted += deleteByName(acronym.getName());
+                deletedNames.add(acronym.getName());
+            }
         }
+        Log.d(TAG, deleted + " element(s) deleted from content provider");
+    }
+
+    // remove everything from the cache
+    public void removeAllFromCache() {
+        int deleted = mContext.getContentResolver().delete(
+                AcronymProvider.CONTENT_URI,
+                null, // no selection = everything
+                null); // no selection args
         Log.d(TAG, deleted + " element(s) deleted from content provider");
     }
 

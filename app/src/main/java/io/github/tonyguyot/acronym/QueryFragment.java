@@ -121,7 +121,7 @@ public class QueryFragment extends Fragment {
         if (!TextUtils.isEmpty(acronymName)) {
             Utils.hideKeyboard(getActivity(), mTvQuery.getWindowToken());
             showInProgress();
-            AcronymService.start(getContext(), acronymName);
+            AcronymService.startRetrieveAcronym(getContext(), acronymName);
         } else {
             Log.d(TAG, "invalid data entry -> do nothing");
         }

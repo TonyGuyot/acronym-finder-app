@@ -32,4 +32,5 @@
     <!-- history fragment -->
     <string name="history_empty">History is empty</string>
     <string name="history_error">Could not retrieve history!</string>
+    <string name="history_clear">Clear history</string>
 </resources>

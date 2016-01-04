@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.telecom.Call;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -37,12 +38,15 @@ public class AcronymService extends IntentService {
     // provide useful methods to deal with the calling intent.
     // the calling intent has the following structure:
     //   * action: ACTION_GET_ACRONYM -> ask to retrieve one acronym definition
+    //   * action: ACTION_GET_ACRONYMS -> retrieve all acronyms from cache
+    //   * action: ACTION_CLEAR_CACHE -> clear all acronyms in the cache
     //   * extra: EXTRA_ACRONYM_NAME -> name of the acronym to retrieve
     public static class CallingIntent {
 
         // expected action in the calling intent
         private static final String ACTION_GET_ACRONYM = PREFIX + "action.GET_ACRONYM";
         private static final String ACTION_GET_ACRONYMS = PREFIX + "action.GET_ACRONYMS";
+        private static final String ACTION_CLEAR_CACHE = PREFIX + "action.CLEAR_CACHE";
 
         // expected parameter in the calling intent
         private static final String EXTRA_ACRONYM_NAME = PREFIX + "extra.ACRONYM_NAME";
@@ -50,10 +54,11 @@ public class AcronymService extends IntentService {
         // check that the intent is a calling intent
         private static boolean checkIntent(Intent intent) {
             return ACTION_GET_ACRONYM.equals(intent.getAction())
-                    || ACTION_GET_ACRONYMS.equals(intent.getAction());
+                    || ACTION_GET_ACRONYMS.equals(intent.getAction())
+                    || ACTION_CLEAR_CACHE.equals(intent.getAction());
         }
 
-        // create a new calling intent
+        // create a new calling intent to perform the acronym search operation
         public static Intent makeIntent(Context context, String acronymName) {
             Intent intent = new Intent(context, AcronymService.class);
             intent.setAction(ACTION_GET_ACRONYM);
@@ -61,10 +66,17 @@ public class AcronymService extends IntentService {
             return intent;
         }
 
-        // create a new calling intent
+        // create a new calling intent to perform the acronym history list operation
         public static Intent makeIntent(Context context) {
             Intent intent = new Intent(context, AcronymService.class);
             intent.setAction(ACTION_GET_ACRONYMS);
+            return intent;
+        }
+
+        // create a new calling intent to perform the cache clear operation
+        public static Intent makeCacheClearIntent(Context context) {
+            Intent intent = new Intent(context, AcronymService.class);
+            intent.setAction(ACTION_CLEAR_CACHE);
             return intent;
         }
 
@@ -267,13 +279,18 @@ public class AcronymService extends IntentService {
      *
      * @see IntentService
      */
-    public static void start(Context context, String acronymName) {
+    public static void startRetrieveAcronym(Context context, String acronymName) {
         Intent intent = CallingIntent.makeIntent(context, acronymName);
         context.startService(intent);
     }
 
-    public static void start(Context context) {
+    public static void startListContentOfCache(Context context) {
         Intent intent = CallingIntent.makeIntent(context);
+        context.startService(intent);
+    }
+
+    public static void startClearCache(Context context) {
+        Intent intent = CallingIntent.makeCacheClearIntent(context);
         context.startService(intent);
     }
 
@@ -284,6 +301,7 @@ public class AcronymService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             switch (intent.getAction()) {
+
                 case CallingIntent.ACTION_GET_ACRONYM:
                     // perform the operation -> retrieve a given acronym
                     String acronymName = CallingIntent.getAcronymName(intent);
@@ -296,13 +314,25 @@ public class AcronymService extends IntentService {
                         publishResultsFailure(acronymName, results.getStatus(), results.getAdditionalStatus());
                     }
                     break;
+
                 case CallingIntent.ACTION_GET_ACRONYMS:
                     // perform the operation -> retrieve all acronyms
-                    Intent reply = ListIntent.makeIntent(doRetrieveAllAcronymDefinitions().getContent());
+                    AcronymList list = doRetrieveAllAcronymDefinitions();
 
                     // broadcast result back to sender
+                    Intent reply = ListIntent.makeIntent(list.getContent());
                     sendBroadcast(reply);
                     break;
+
+                case CallingIntent.ACTION_CLEAR_CACHE:
+                    // perform the operation -> clear all acronyms in the cache
+                    doClearCache();
+
+                    // broadcast result (= an empty list) back to sender
+                    reply = ListIntent.makeIntent(new ArrayList<Acronym>());
+                    sendBroadcast(reply);
+                    break;
+
                 default:
                     Log.d(TAG, "Unknown action received");
             }
@@ -352,6 +382,12 @@ public class AcronymService extends IntentService {
     public AcronymList doRetrieveAllAcronymDefinitions() {
         AcronymCacheMediator cache = new AcronymCacheMediator(getApplicationContext());
         return cache.retrieveAllFromCache();
+    }
+
+    // clear all the elements in the cache
+    public void doClearCache() {
+        AcronymCacheMediator cache = new AcronymCacheMediator(getApplicationContext());
+        cache.removeAllFromCache();
     }
 
     // publish the results using a local broadcast receiver
