@@ -1,4 +1,4 @@
-package io.github.tonyguyot.acronym;
+package io.github.tonyguyot.acronym.operations;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;

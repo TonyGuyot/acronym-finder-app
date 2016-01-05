@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import io.github.tonyguyot.acronym.AcronymXmlParser;
 import io.github.tonyguyot.acronym.data.AcronymList;
 
 /**
