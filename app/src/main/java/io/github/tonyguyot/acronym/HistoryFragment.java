@@ -1,8 +1,10 @@
 package io.github.tonyguyot.acronym;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -144,8 +146,22 @@ public class HistoryFragment extends Fragment {
 
     // user has clicked on the clear button
     private void onClearButtonClick() {
-        // TODO: ask for confirmation
-        AcronymService.startClearCache(getContext());
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.history_clear)
+                .setMessage(R.string.history_confirm)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // user pressed YES => clear the cache
+                        AcronymService.startClearCache(getContext());
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // user pressed NO => do nothing
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     // ------ HELPER METHODS -----
