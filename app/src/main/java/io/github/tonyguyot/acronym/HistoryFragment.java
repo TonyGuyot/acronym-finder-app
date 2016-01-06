@@ -160,7 +160,7 @@ public class HistoryFragment extends Fragment {
                         // user pressed NO => do nothing
                     }
                 })
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIcon(R.mipmap.ic_dialog_alert_holo_light)
                 .show();
     }
 
