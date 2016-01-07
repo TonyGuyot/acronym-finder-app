@@ -75,7 +75,7 @@ public class HistoryFragment extends Fragment {
         RecyclerView.ItemDecoration itemDecoration = new
                 DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST);
         mRecyclerView.addItemDecoration(itemDecoration);
-        mAdapter = new HistoryAdapter();
+        mAdapter = new HistoryAdapter(getActivity().getApplicationContext());
         mRecyclerView.setAdapter(mAdapter);
 
         // define the callback for the button

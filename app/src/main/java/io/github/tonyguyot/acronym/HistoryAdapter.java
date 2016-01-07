@@ -1,5 +1,7 @@
 package io.github.tonyguyot.acronym;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -26,6 +28,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     private Map<String, Set<String>> mDataSet;
     private List<String> mDataIndex;
 
+    // icons for the view
+    private final Drawable mExpandedDrawable;
+    private final Drawable mCollapsedDrawable;
+
     // the view holder
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -39,10 +45,20 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         }
     }
 
-    // default constructor
-    public HistoryAdapter() {
+    // constructor
+    public HistoryAdapter(Context context) {
         mDataSet = new HashMap<>();
         mDataIndex = new ArrayList<>();
+
+        // define the icons
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP){
+            mExpandedDrawable = context.getDrawable(R.mipmap.arrow_down_float);
+            mCollapsedDrawable = context.getDrawable(R.mipmap.arrow_up_float);
+        } else {
+            mExpandedDrawable = context.getResources().getDrawable(R.mipmap.arrow_down_float);
+            mCollapsedDrawable = context.getResources().getDrawable(R.mipmap.arrow_up_float);
+        }
+
     }
 
     // update the dataset from a global list of definitions
@@ -80,7 +96,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         // replace the content of the view with a new element
         final String name = mDataIndex.get(position);
         final Set<String> content = mDataSet.get(name);
-        final TextView definitionsText = holder.definitions;
+        final TextView nameTextView = holder.name;
+        final TextView definitionsTextView = holder.definitions;
 
         // put the name in the first textview
         // the name is always visible
@@ -88,7 +105,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         holder.name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                definitionsText.setVisibility(View.VISIBLE);
+                // the user has clicked on the name:
+                // show the definitions (or hide them if they were
+                // already displayed)
+                toggleView(nameTextView, definitionsTextView);
             }
         });
 
@@ -110,9 +130,41 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         holder.definitions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                definitionsText.setVisibility(View.GONE);
+                // the user has clicked on the definitions:
+                // hide the definitions and display only the name
+                collapseView(nameTextView, definitionsTextView);
             }
         });
+    }
+
+    // show name + definitions in the view
+    private void expandView(TextView tvName, TextView tvDefinitions) {
+        // show definitions
+        tvDefinitions.setVisibility(View.VISIBLE);
+
+        // change icon near name
+        tvName.setCompoundDrawablesWithIntrinsicBounds(mExpandedDrawable, null, null, null);
+    }
+
+    // show name only in the view
+    private void collapseView(TextView tvName, TextView tvDefinitions) {
+        // hide definitions
+        tvDefinitions.setVisibility(View.GONE);
+
+        // change icon near name
+        tvName.setCompoundDrawablesWithIntrinsicBounds(mCollapsedDrawable, null, null, null);
+    }
+
+    private void toggleView(TextView tvName, TextView tvDefinitions) {
+        if (tvDefinitions.getVisibility() == View.GONE) {
+            // the definitions are currently not displayed:
+            // we want now to show them
+            expandView(tvName, tvDefinitions);
+        } else {
+            // the defintions are currently displayed:
+            // we want now to hide them
+            collapseView(tvName, tvDefinitions);
+        }
     }
 
     @Override
