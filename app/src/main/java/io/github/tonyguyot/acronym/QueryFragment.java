@@ -38,13 +38,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import io.github.tonyguyot.acronym.data.Acronym;
+import io.github.tonyguyot.acronym.fragments.ViewPagerFragmentLifecycle;
 import io.github.tonyguyot.acronym.ui.DividerItemDecoration;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class QueryFragment extends Fragment {
+public class QueryFragment extends Fragment
+                            implements ViewPagerFragmentLifecycle {
 
     // tag for logging information
     private static final String TAG = "AcronymQueryFragment";
@@ -149,7 +151,25 @@ public class QueryFragment extends Fragment {
         }
     }
 
-    // ------ CALLBACKS ------
+    /////////////////////////////////////////////////////////////
+    // Callbacks from the ViewPagerFragmentLifecycle interface
+    /////////////////////////////////////////////////////////////
+
+    @Override
+    public void onShowInViewPager() {
+        // do nothing
+    }
+
+    @Override
+    public void onHideInViewPager() {
+        // if keyboard is currently displayed, we don't want it to saty open
+        // when displaying another pane
+        hideKeyboard();
+    }
+
+    /////////////////////
+    // Other callbacks
+    /////////////////////
 
     // called when the user clicks on the submit button
     // => start the AcronymService to retrieve the acronym expansions

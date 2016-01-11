@@ -25,6 +25,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,7 +35,12 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.tonyguyot.acronym.fragments.ViewPagerFragmentLifecycle;
+
 public class MainActivity extends AppCompatActivity {
+
+    // tag for logging information
+    private static final String TAG = "AcronymMainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,27 +83,39 @@ public class MainActivity extends AppCompatActivity {
 
     // helper method to setup the view pager
     private void setupViewPager(ViewPager vp) {
+
+        // create the adapater
         final ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addItem(new QueryFragment(), getResources().getString(R.string.tab_query));
         adapter.addItem(new HistoryFragment(), getResources().getString(R.string.tab_history));
         adapter.addItem(new InfoFragment(), getResources().getString(R.string.tab_info));
+
+        // set the view pager
+        vp.setOffscreenPageLimit(2);
         vp.setAdapter(adapter);
         vp.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+
+            int mCurrentPosition = -1;
+
             @Override
-            public void onPageSelected(int position) {
+            public void onPageSelected(int newPosition) {
                 // a new page has been displayed...
+                Log.d(TAG, "switching to page position #" + newPosition);
 
-                // if this page is the history page, then refresh the history list
-                if (position == 1) {
-                    HistoryFragment frag = (HistoryFragment) adapter.getItem(1);
-                    frag.refresh();
+                // call the hide callback for the fragment we are moving from
+                if (mCurrentPosition >= 0) {
+                    ViewPagerFragmentLifecycle fragmentToHide =
+                            (ViewPagerFragmentLifecycle) adapter.getItem(mCurrentPosition);
+                    fragmentToHide.onHideInViewPager();
                 }
 
-                // if the new page is not the query page, then hide keyboard
-                if (position != 0) {
-                    QueryFragment frag = (QueryFragment) adapter.getItem(0);
-                    frag.hideKeyboard();
-                }
+                // call the show callback for the fragment we are moving to
+                ViewPagerFragmentLifecycle fragmentToShow =
+                        (ViewPagerFragmentLifecycle) adapter.getItem(newPosition);
+                fragmentToShow.onShowInViewPager();
+
+                // remenber the new position
+                mCurrentPosition = newPosition;
             }
         });
     }

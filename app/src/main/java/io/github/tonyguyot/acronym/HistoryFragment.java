@@ -35,12 +35,14 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import io.github.tonyguyot.acronym.data.Acronym;
+import io.github.tonyguyot.acronym.fragments.ViewPagerFragmentLifecycle;
 import io.github.tonyguyot.acronym.ui.DividerItemDecoration;
 
 /**
  * A fragment representing a list of Items.
  */
-public class HistoryFragment extends Fragment {
+public class HistoryFragment extends Fragment
+        implements ViewPagerFragmentLifecycle {
 
     // tag for logging information
     private static final String TAG = "AcronymHistoryFragment";
@@ -102,6 +104,7 @@ public class HistoryFragment extends Fragment {
             }
         });
 
+        Log.d(TAG, "view has been created");
         return view;
     }
 
@@ -119,8 +122,30 @@ public class HistoryFragment extends Fragment {
 
     public void refresh() {
         // start the service
-        AcronymService.startListContentOfCache(getContext());
+        if (getActivity() == null) {
+            Log.d(TAG, "Activity is null");
+        } else {
+            AcronymService.startListContentOfCache(getActivity());
+        }
     }
+
+    /////////////////////////////////////////////////////////////
+    // Callbacks from the ViewPagerFragmentLifecycle interface
+    /////////////////////////////////////////////////////////////
+
+    @Override
+    public void onShowInViewPager() {
+        refresh();
+    }
+
+    @Override
+    public void onHideInViewPager() {
+        // do nothing
+    }
+
+    /////////////////////
+    // Other callbacks
+    /////////////////////
 
     // received notification about search result
     private void onResultReceived(Intent intent) {
