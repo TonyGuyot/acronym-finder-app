@@ -34,6 +34,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import io.github.tonyguyot.acronym.data.Acronym;
@@ -47,6 +48,9 @@ public class QueryFragment extends Fragment {
 
     // tag for logging information
     private static final String TAG = "AcronymQueryFragment";
+
+    // key for the saved instance
+    private static final String KEY_ACRONYMS = "acronyms";
 
     // where the user types the acronym to search
     private TextView mTvQuery;
@@ -83,7 +87,11 @@ public class QueryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // TODO: retrieve the previous values
+        Acronym[] savedValues = null;
+        if (savedInstanceState != null) {
+            // the application has been reloaded
+            savedValues = (Acronym[]) savedInstanceState.getParcelableArray(KEY_ACRONYMS);
+        }
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_query, container, false);
@@ -99,7 +107,11 @@ public class QueryFragment extends Fragment {
         RecyclerView.ItemDecoration itemDecoration = new
                 DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST);
         recyclerView.addItemDecoration(itemDecoration);
-        mAdapter = new QueryAdapter();
+        if (savedValues == null) {
+            mAdapter = new QueryAdapter();
+        } else {
+            mAdapter = new QueryAdapter(savedValues);
+        }
         recyclerView.setAdapter(mAdapter);
 
         // define the callback for the button
@@ -111,6 +123,7 @@ public class QueryFragment extends Fragment {
             }
         });
 
+        Log.d(TAG, "view has been created");
         return view;
     }
 
@@ -124,6 +137,16 @@ public class QueryFragment extends Fragment {
     public void onPause() {
         getActivity().unregisterReceiver(mReceiver);
         super.onPause();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedState) {
+        super.onSaveInstanceState(savedState);
+        ArrayList<Acronym> values = mAdapter.getValues();
+        if (values != null) {
+            savedState.putParcelableArray(KEY_ACRONYMS,
+                    values.toArray(new Acronym[values.size()]));
+        }
     }
 
     // ------ CALLBACKS ------

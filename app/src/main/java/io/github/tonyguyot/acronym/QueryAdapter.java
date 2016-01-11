@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import io.github.tonyguyot.acronym.data.Acronym;
 
@@ -58,6 +59,11 @@ public class QueryAdapter extends RecyclerView.Adapter<QueryAdapter.ViewHolder> 
         mDataSet = dataSet;
     }
 
+    // constructor from array
+    public QueryAdapter(Acronym[] dataSet) {
+        mDataSet = new ArrayList<>(Arrays.asList(dataSet));
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
@@ -82,6 +88,10 @@ public class QueryAdapter extends RecyclerView.Adapter<QueryAdapter.ViewHolder> 
     @Override
     public int getItemCount() {
         return mDataSet.size();
+    }
+
+    public ArrayList<Acronym> getValues() {
+        return mDataSet;
     }
 
     public void add(int pos, Acronym item) {
