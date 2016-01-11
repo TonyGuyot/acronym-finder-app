@@ -59,6 +59,7 @@
         android:layout_height="wrap_content"
         android:text="@string/query_no_query"
         android:gravity="center_horizontal"
+        android:freezesText="true"
         android:textSize="16sp"
         android:padding="6dp"
         />
