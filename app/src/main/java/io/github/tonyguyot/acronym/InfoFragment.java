@@ -21,14 +21,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import io.github.tonyguyot.acronym.fragments.ViewPagerFragmentLifecycle;
-
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class InfoFragment extends Fragment
-        implements ViewPagerFragmentLifecycle {
+public class InfoFragment extends Fragment {
 
     public InfoFragment() {
         // Required empty public constructor
@@ -44,19 +41,5 @@ public class InfoFragment extends Fragment
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_info, container, false);
-    }
-
-    /////////////////////////////////////////////////////////////
-    // Callbacks from the ViewPagerFragmentLifecycle interface
-    /////////////////////////////////////////////////////////////
-
-    @Override
-    public void onShowInViewPager() {
-        // do nothing
-    }
-
-    @Override
-    public void onHideInViewPager() {
-        // do nothing
     }
 }

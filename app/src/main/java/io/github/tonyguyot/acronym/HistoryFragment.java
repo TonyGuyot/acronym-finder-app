@@ -35,14 +35,12 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import io.github.tonyguyot.acronym.data.Acronym;
-import io.github.tonyguyot.acronym.fragments.ViewPagerFragmentLifecycle;
 import io.github.tonyguyot.acronym.ui.DividerItemDecoration;
 
 /**
  * A fragment representing a list of Items.
  */
-public class HistoryFragment extends Fragment
-        implements ViewPagerFragmentLifecycle {
+public class HistoryFragment extends Fragment {
 
     // tag for logging information
     private static final String TAG = "AcronymHistoryFragment";
@@ -127,20 +125,6 @@ public class HistoryFragment extends Fragment
         } else {
             AcronymService.startListContentOfCache(getActivity());
         }
-    }
-
-    /////////////////////////////////////////////////////////////
-    // Callbacks from the ViewPagerFragmentLifecycle interface
-    /////////////////////////////////////////////////////////////
-
-    @Override
-    public void onShowInViewPager() {
-        refresh();
-    }
-
-    @Override
-    public void onHideInViewPager() {
-        // do nothing
     }
 
     /////////////////////
