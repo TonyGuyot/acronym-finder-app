@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:text="@string/app_description"
         android:gravity="center_horizontal"
-        android:textSize="16sp"
+        android:textSize="24sp"
         android:padding="6dp"
         />
 

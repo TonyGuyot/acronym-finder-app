@@ -20,6 +20,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -100,6 +101,12 @@ public class QueryFragment extends Fragment {
         mTvQuery = (TextView) view.findViewById(R.id.query_entry);
         mTvResultStatus = (TextView) view.findViewById(R.id.query_result);
         mProgress = (ProgressBar) view.findViewById(R.id.query_progress);
+
+        // init graphical elements
+        TextView intro = (TextView) view.findViewById(R.id.query_info);
+        Typeface tf = Typeface.createFromAsset(getActivity().getAssets(),
+                "fonts/Lobster-Regular.ttf");
+        intro.setTypeface(tf);
 
         // initialize the recycler view for the list of results
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.query_list);
