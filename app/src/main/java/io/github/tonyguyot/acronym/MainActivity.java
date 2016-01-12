@@ -35,8 +35,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.tonyguyot.acronym.fragments.ViewPagerFragmentLifecycle;
-
 public class MainActivity extends AppCompatActivity {
 
     // tag for logging information
@@ -82,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // helper method to setup the view pager
-    private void setupViewPager(ViewPager vp) {
+    private void setupViewPager(final ViewPager vp) {
 
         // create the adapater
         final ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -93,29 +91,26 @@ public class MainActivity extends AppCompatActivity {
         // set the view pager
         vp.setOffscreenPageLimit(2);
         vp.setAdapter(adapter);
-        vp.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-
-            int mCurrentPosition = -1;
+        vp.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
             @Override
             public void onPageSelected(int newPosition) {
                 // a new page has been displayed...
                 Log.d(TAG, "switching to page position #" + newPosition);
+            }
 
-                // call the hide callback for the fragment we are moving from
-                if (mCurrentPosition >= 0) {
-                    ViewPagerFragmentLifecycle fragmentToHide =
-                            (ViewPagerFragmentLifecycle) adapter.getItem(mCurrentPosition);
-                    fragmentToHide.onHideInViewPager();
+            @Override
+            public void onPageScrolled(int position, float offset, int offsetPixels) {
+                // do nothing
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (state == ViewPager.SCROLL_STATE_IDLE) {
+                    if (vp.getCurrentItem() != 0) {
+                        Utils.hideKeyboard(MainActivity.this, vp.getWindowToken());
+                    }
                 }
-
-                // call the show callback for the fragment we are moving to
-                ViewPagerFragmentLifecycle fragmentToShow =
-                        (ViewPagerFragmentLifecycle) adapter.getItem(newPosition);
-                fragmentToShow.onShowInViewPager();
-
-                // remenber the new position
-                mCurrentPosition = newPosition;
             }
         });
     }
