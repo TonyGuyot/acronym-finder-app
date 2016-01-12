@@ -35,6 +35,7 @@
     <string name="history_empty">History is empty</string>
     <string name="history_error">Could not retrieve history!</string>
     <string name="history_clear">Clear history</string>
+    <string name="history_refresh">Refresh history</string>
     <string name="history_confirm">Do you want to remove all items from the history?</string>
 
     <!-- info fragment -->

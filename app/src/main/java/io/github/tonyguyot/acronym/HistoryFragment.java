@@ -93,12 +93,19 @@ public class HistoryFragment extends Fragment {
         mAdapter = new HistoryAdapter(getActivity().getApplicationContext());
         mRecyclerView.setAdapter(mAdapter);
 
-        // define the callback for the button
+        // define the callbacks for the buttons
         Button clearButton = (Button) view.findViewById(R.id.history_clear);
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onClearButtonClick();
+            }
+        });
+        Button refreshButton = (Button) view.findViewById(R.id.history_refresh);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onRefreshButtonClick();
             }
         });
 
@@ -110,6 +117,7 @@ public class HistoryFragment extends Fragment {
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(mReceiver, AcronymService.ListIntent.getIntentFilter());
+        refresh();
     }
 
     @Override
@@ -186,6 +194,11 @@ public class HistoryFragment extends Fragment {
                 })
                 .setIcon(R.mipmap.ic_dialog_alert_holo_light)
                 .show();
+    }
+
+    // user has clicked on the refresh button
+    private void onRefreshButtonClick() {
+        refresh();
     }
 
     // ------ HELPER METHODS -----
