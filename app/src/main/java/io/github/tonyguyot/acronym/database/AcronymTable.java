@@ -50,7 +50,9 @@ public class AcronymTable {
     }
 
     public static void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-        database.execSQL(TABLE_DELETION_CMD);
-        onCreate(database);
+        if (oldVersion != newVersion) {
+            database.execSQL(TABLE_DELETION_CMD);
+            onCreate(database);
+        }
     }
 }
