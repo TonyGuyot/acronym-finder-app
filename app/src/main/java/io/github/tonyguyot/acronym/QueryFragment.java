@@ -164,7 +164,6 @@ public class QueryFragment extends Fragment {
     // => start the AcronymService to retrieve the acronym expansions
     private void onSubmitButtonClick() {
         String acronymName = mTvQuery.getText().toString().trim().toUpperCase();
-        // TODO remove any invalid character
         if (!TextUtils.isEmpty(acronymName)) {
             hideKeyboard();
             showInProgress();

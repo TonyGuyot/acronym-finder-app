@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import io.github.tonyguyot.acronym.database.AcronymDatabaseHelper;
@@ -86,10 +87,13 @@ public class AcronymProvider extends ContentProvider {
 
         // execute the query
         SQLiteDatabase db = mDatabase.getWritableDatabase();
-        String groupBy = null;
-        String having = null;
-        Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs,
-                groupBy, having, sortOrder);
+        Cursor cursor = queryBuilder.query(db,
+                projection,
+                selection,
+                selectionArgs,
+                null, // groupBy
+                null, // having
+                sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }

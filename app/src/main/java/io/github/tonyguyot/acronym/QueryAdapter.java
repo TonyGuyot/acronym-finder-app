@@ -54,11 +54,6 @@ public class QueryAdapter extends RecyclerView.Adapter<QueryAdapter.ViewHolder> 
         mDataSet = new ArrayList<>();
     }
 
-    // constructor
-    public QueryAdapter(ArrayList<Acronym> dataSet) {
-        mDataSet = dataSet;
-    }
-
     // constructor from array
     public QueryAdapter(Acronym[] dataSet) {
         mDataSet = new ArrayList<>(Arrays.asList(dataSet));

@@ -61,10 +61,6 @@ public class Utils {
         Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
     }
 
-    // display a snackbar
-    // TODO
-
-
     // ------ KEYBOARD RELATED METHODS -----
 
     /**
@@ -81,8 +77,6 @@ public class Utils {
         getInputMethodManager(activity).toggleSoftInput(InputMethodManager.SHOW_FORCED,
                 InputMethodManager.HIDE_IMPLICIT_ONLY);
     }
-
-
 
     // NETWORK INFORMATION
 
