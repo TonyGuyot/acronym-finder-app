@@ -196,11 +196,11 @@ public class QueryFragment extends Fragment {
             String text;
             if (results.isEmpty()) {
                 // no result found
-                text = String.format(res.getString(R.string.query_no_result), acronym);
+                text = String.format(res.getString(R.string.query_no_result_for_sss), acronym);
             } else {
                 // one or more results found
                 int count = results.size();
-                text = res.getQuantityString(R.plurals.query_n_results,
+                text = res.getQuantityString(R.plurals.query_nnn_results_for_sss,
                         count, // to select which string we use (plural or not)
                         count, // to replace %d with number
                         acronym); // to replace %s with name
@@ -222,7 +222,10 @@ public class QueryFragment extends Fragment {
 
     // received notification about acronym search failed
     private void onResultFailed(Intent intent) {
-        if (AcronymService.ReplyIntent.isNetworkError(intent)) {
+        if (AcronymService.ReplyIntent.isInvalidDataError(intent)) {
+            mTvResultStatus.setText(R.string.query_no_result);
+        }
+        else if (AcronymService.ReplyIntent.isNetworkError(intent)) {
             mTvResultStatus.setText(R.string.query_error_server);
         } else if (AcronymService.ReplyIntent.isParsingError(intent)) {
             mTvResultStatus.setText(R.string.query_error_parse);
@@ -236,7 +239,9 @@ public class QueryFragment extends Fragment {
         }
     }
 
-    // ------ HELPER METHODS -----
+    ////////////////////
+    // HELPER METHODS
+    ////////////////////
 
     // set the UI in the "search in progress" mode
     private void showInProgress() {

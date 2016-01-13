@@ -17,8 +17,9 @@
     <string name="query_hint">Enter an acronym…</string>
     <string name="query_submit">Search</string>
     <string name="query_in_progress">Search in progress…</string>
-    <string name="query_no_result">No result found for &lt;b>%1$s&lt;/b></string>
-    <plurals name="query_n_results">
+    <string name="query_no_result">No result found</string>
+    <string name="query_no_result_for_sss">No result found for &lt;b>%1$s&lt;/b></string>
+    <plurals name="query_nnn_results_for_sss">
         <item quantity="one">%1$d result found for &lt;b>%2$s&lt;/b></item>
         <item quantity="other">%1$d results found for &lt;b>%2$s&lt;/b></item>
         <!-- html tags are escaped since they are not permitted when using

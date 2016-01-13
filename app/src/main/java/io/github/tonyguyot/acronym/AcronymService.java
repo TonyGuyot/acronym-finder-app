@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -198,17 +199,25 @@ public class AcronymService extends IntentService {
         }
 
         // extract error code from the reply intent
+        public static boolean isInvalidDataError(Intent intent) {
+            return checkIntent(intent)
+                    && intent.getIntExtra(EXTRA_ERROR_CODE, 0)
+                        == AcronymList.Status.STATUS_INVALID_DATA;
+        }
         public static boolean isNetworkError(Intent intent) {
             return checkIntent(intent)
-                    && intent.getIntExtra(EXTRA_ERROR_CODE, 0) == AcronymList.Status.STATUS_ERROR_NETWORK;
+                    && intent.getIntExtra(EXTRA_ERROR_CODE, 0)
+                        == AcronymList.Status.STATUS_ERROR_NETWORK;
         }
         public static boolean isParsingError(Intent intent) {
             return checkIntent(intent)
-                    && intent.getIntExtra(EXTRA_ERROR_CODE, 0) == AcronymList.Status.STATUS_ERROR_PARSING;
+                    && intent.getIntExtra(EXTRA_ERROR_CODE, 0)
+                        == AcronymList.Status.STATUS_ERROR_PARSING;
         }
         public static boolean isHttpError(Intent intent) {
             return checkIntent(intent)
-                    && intent.getIntExtra(EXTRA_ERROR_CODE, 0) == AcronymList.Status.STATUS_ERROR_COMMUNICATION;
+                    && intent.getIntExtra(EXTRA_ERROR_CODE, 0)
+                        == AcronymList.Status.STATUS_ERROR_COMMUNICATION;
         }
         public static int getHttpResponse(Intent intent) {
             if (checkIntent(intent)) {
@@ -316,21 +325,32 @@ public class AcronymService extends IntentService {
         if (intent != null) {
             switch (intent.getAction()) {
 
+                // retrieve a given acronym
                 case CallingIntent.ACTION_GET_ACRONYM:
-                    // perform the operation -> retrieve a given acronym
-                    String acronymName = CallingIntent.getAcronymName(intent);
-                    AcronymList results = doRetrieveAcronymDefinitions(acronymName);
 
-                    // broadcast result back to sender
-                    if (results.getContent() != null) {
-                        publishResultsSuccess(acronymName, results.getContent());
+                    // retrieve the name & sanitize it
+                    String acronymName = CallingIntent.getAcronymName(intent);
+                    String sanitizedAcronymName = sanitizeName(acronymName);
+                    if (TextUtils.isEmpty(sanitizedAcronymName)) {
+                        // no need to perform the operation
+                        publishResultsFailure(acronymName, AcronymList.Status.STATUS_INVALID_DATA, 0);
                     } else {
-                        publishResultsFailure(acronymName, results.getStatus(), results.getAdditionalStatus());
+
+                        // perform the operation
+                        AcronymList results = doRetrieveAcronymDefinitions(sanitizedAcronymName);
+
+                        // broadcast result back to sender
+                        if (results.getContent() != null) {
+                            publishResultsSuccess(sanitizedAcronymName, results.getContent());
+                        } else {
+                            publishResultsFailure(sanitizedAcronymName, results.getStatus(), results.getAdditionalStatus());
+                        }
                     }
                     break;
 
+                // retrieve all acronyms
                 case CallingIntent.ACTION_GET_ACRONYMS:
-                    // perform the operation -> retrieve all acronyms
+                    // perform the operation
                     AcronymList list = doRetrieveAllAcronymDefinitions();
 
                     // broadcast result back to sender
@@ -338,8 +358,9 @@ public class AcronymService extends IntentService {
                     sendBroadcast(reply);
                     break;
 
+                // clear all acronyms in the cache
                 case CallingIntent.ACTION_CLEAR_CACHE:
-                    // perform the operation -> clear all acronyms in the cache
+                    // perform the operation
                     doClearCache();
 
                     // broadcast result (= an empty list) back to sender
@@ -353,6 +374,23 @@ public class AcronymService extends IntentService {
         } else {
             Log.d(TAG, "Null intent received");
         }
+    }
+
+    ////////////////////
+    // Helper methods
+    ////////////////////
+
+    /**
+     * Ensure that the name does not contain illegal characters.
+     * This will help to prevent any SQL injection attempts from malicious
+     * users.
+     */
+    private String sanitizeName(String name) {
+        if (name != null) {
+            // keep only letters, numbers and some punctuations
+            return name.replaceAll("[^A-Za-z0-9._-]", "");
+        }
+        return null;
     }
 
     // retrieve all definitions of a given acronym
