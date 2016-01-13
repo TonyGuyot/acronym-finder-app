@@ -32,8 +32,6 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -84,9 +82,6 @@ public class MainActivity extends AppCompatActivity {
 
         // create the adapater
         final ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addItem(new QueryFragment(), getResources().getString(R.string.tab_query));
-        adapter.addItem(new HistoryFragment(), getResources().getString(R.string.tab_history));
-        adapter.addItem(new InfoFragment(), getResources().getString(R.string.tab_info));
 
         // set the view pager
         vp.setOffscreenPageLimit(2);
@@ -117,8 +112,6 @@ public class MainActivity extends AppCompatActivity {
 
     // adapter for the view pager
     private class ViewPagerAdapter extends FragmentPagerAdapter {
-        private final List<String> mTitles = new ArrayList<>();
-        private final List<Fragment> mFragments = new ArrayList<>();
 
         public ViewPagerAdapter(FragmentManager manager) {
             super(manager);
@@ -126,22 +119,27 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return mFragments.size();
+            return 3;
         }
 
         @Override
         public Fragment getItem(int pos) {
-            return mFragments.get(pos);
+            switch (pos) {
+                case 0: return new QueryFragment();
+                case 1: return new HistoryFragment();
+                case 2: return new InfoFragment();
+                default: return null;
+            }
         }
 
         @Override
         public CharSequence getPageTitle(int pos) {
-            return mTitles.get(pos);
-        }
-
-        public void addItem(Fragment fragment, String title) {
-            mFragments.add(fragment);
-            mTitles.add(title);
+            switch (pos) {
+                case 0: return getResources().getString(R.string.tab_query);
+                case 1: return getResources().getString(R.string.tab_history);
+                case 2: return getResources().getString(R.string.tab_info);
+                default: return null;
+            }
         }
     }
 
