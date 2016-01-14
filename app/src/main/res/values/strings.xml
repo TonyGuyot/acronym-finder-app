@@ -40,6 +40,6 @@
     <string name="history_confirm">Do you want to remove all items from the history?</string>
 
     <!-- info fragment -->
-    <string name="info_server">This application uses the Acronym Internet Server from Silmaril (http://acronyms.silmaril.ie). Other servers may be added in the future.</string>
+    <string name="info_server">This application uses the Acronym Server from Silmaril (http://acronyms.silmaril.ie). Other servers may be added in the future.</string>
     <string name="info_source">The entire source code of this application is released freely under the Apache license and is available on GitHub.</string>
 </resources>
