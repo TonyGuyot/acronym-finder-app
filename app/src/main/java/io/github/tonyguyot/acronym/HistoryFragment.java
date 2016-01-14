@@ -35,6 +35,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import io.github.tonyguyot.acronym.data.Acronym;
+import io.github.tonyguyot.acronym.presenter.AcronymService;
 import io.github.tonyguyot.acronym.ui.DividerItemDecoration;
 
 /**
