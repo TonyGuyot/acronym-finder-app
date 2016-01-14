@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import io.github.tonyguyot.acronym.data.Acronym;
+import io.github.tonyguyot.acronym.utils.CompatUtils;
 
 /**
  * Adapter class for the Recycler View displaying the results in
@@ -66,14 +67,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         mDataIndex = new ArrayList<>();
 
         // define the icons
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP){
-            mExpandedDrawable = context.getDrawable(R.mipmap.arrow_down_float);
-            mCollapsedDrawable = context.getDrawable(R.mipmap.arrow_up_float);
-        } else {
-            mExpandedDrawable = context.getResources().getDrawable(R.mipmap.arrow_down_float);
-            mCollapsedDrawable = context.getResources().getDrawable(R.mipmap.arrow_up_float);
-        }
-
+        mExpandedDrawable = CompatUtils.getDrawable(context, R.mipmap.arrow_down_float);
+        mCollapsedDrawable = CompatUtils.getDrawable(context, R.mipmap.arrow_up_float);
     }
 
     // update the dataset from a global list of definitions
