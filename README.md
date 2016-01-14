@@ -15,6 +15,7 @@ It shows:
 * how to perform an HTTP request and parse the response
 * how to use a Service to encapsulate long-duration operations
 * how to use a Content Provider with an SQLite database to implement a cache
+* how to use a recycler view
 * how to correctly separate the business logic from the user interface
 
 ## Copyrights and licenses
