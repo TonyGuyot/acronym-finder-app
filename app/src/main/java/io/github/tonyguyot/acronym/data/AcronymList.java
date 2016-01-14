@@ -43,6 +43,7 @@ public class AcronymList {
         public static final int STATUS_ERROR_PARSING = -4;
 
         // some other kind of error occurred
+        @SuppressWarnings("unused")
         public static final int STATUS_ERROR_OTHER = -5;
 
         // the query data were invalid
@@ -106,10 +107,12 @@ public class AcronymList {
         mAdditionalStatus = additionalStatus;
     }
 
+    @SuppressWarnings("unused")
     public long getRetrievedDate() {
         return mRetrievedDate;
     }
 
+    @SuppressWarnings("unused")
     public void setRetrievedDate(long retrievedDate) {
         mRetrievedDate = retrievedDate;
     }
@@ -122,6 +125,7 @@ public class AcronymList {
         mIsExpired = true;
     }
 
+    @SuppressWarnings("unused")
     public void setAsNotExpired() {
         mIsExpired = false;
     }

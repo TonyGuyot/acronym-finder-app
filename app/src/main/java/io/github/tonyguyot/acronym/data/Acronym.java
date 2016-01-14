@@ -94,10 +94,12 @@ public class Acronym implements Parcelable {
         return mComment;
     }
 
+    @SuppressWarnings("unused")
     public String getDewey() {
         return mDewey;
     }
 
+    @SuppressWarnings("unused")
     public Date getAdded() {
         return mAdded;
     }
@@ -130,6 +132,7 @@ public class Acronym implements Parcelable {
             return this;
         }
 
+        @SuppressWarnings("unused")
         public Builder added(Date added) {
             mAdded = added;
             return this;

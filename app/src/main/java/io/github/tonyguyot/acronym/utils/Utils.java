@@ -26,6 +26,7 @@ import android.widget.Toast;
 /**
  * The Utils class is a static class providing several unrelated utility methods.
  */
+@SuppressWarnings("unused")
 public class Utils {
 
     // to avoid instantiation
