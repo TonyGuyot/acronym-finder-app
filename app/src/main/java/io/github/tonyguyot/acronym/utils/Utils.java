@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.tonyguyot.acronym;
+package io.github.tonyguyot.acronym.utils;
 
 import android.app.Activity;
 import android.content.Context;

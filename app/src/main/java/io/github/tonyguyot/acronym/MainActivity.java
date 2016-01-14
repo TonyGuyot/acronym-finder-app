@@ -32,6 +32,8 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import io.github.tonyguyot.acronym.utils.Utils;
+
 
 public class MainActivity extends AppCompatActivity {
 

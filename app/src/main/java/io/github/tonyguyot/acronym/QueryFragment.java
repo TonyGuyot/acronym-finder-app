@@ -41,6 +41,7 @@ import java.util.Collection;
 import io.github.tonyguyot.acronym.data.Acronym;
 import io.github.tonyguyot.acronym.presenter.AcronymService;
 import io.github.tonyguyot.acronym.ui.DividerItemDecoration;
+import io.github.tonyguyot.acronym.utils.Utils;
 
 
 /**
