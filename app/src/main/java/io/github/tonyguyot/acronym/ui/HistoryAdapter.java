@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.tonyguyot.acronym;
+package io.github.tonyguyot.acronym.ui;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import io.github.tonyguyot.acronym.R;
 import io.github.tonyguyot.acronym.data.Acronym;
 import io.github.tonyguyot.acronym.utils.CompatUtils;
 

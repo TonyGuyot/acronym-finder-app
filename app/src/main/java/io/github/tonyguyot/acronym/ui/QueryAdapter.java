@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.tonyguyot.acronym;
+package io.github.tonyguyot.acronym.ui;
 
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -25,6 +25,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import io.github.tonyguyot.acronym.R;
 import io.github.tonyguyot.acronym.data.Acronym;
 
 /**

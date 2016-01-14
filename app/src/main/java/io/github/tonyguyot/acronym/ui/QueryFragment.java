@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.tonyguyot.acronym;
+package io.github.tonyguyot.acronym.ui;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -38,9 +38,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import io.github.tonyguyot.acronym.R;
 import io.github.tonyguyot.acronym.data.Acronym;
 import io.github.tonyguyot.acronym.presenter.AcronymService;
-import io.github.tonyguyot.acronym.ui.DividerItemDecoration;
 import io.github.tonyguyot.acronym.utils.Utils;
 
 

@@ -20,7 +20,7 @@
         <!-- use "stateHidden" to indicate that we don't want the keyboard
              to pop-up immediately when the application starts -->
         <activity
-            android:name="io.github.tonyguyot.acronym.MainActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AcronymAppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden"

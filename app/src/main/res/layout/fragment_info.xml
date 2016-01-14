@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="io.github.tonyguyot.acronym.InfoFragment"
+    tools:context="io.github.tonyguyot.acronym.ui.InfoFragment"
     >
 
     <!-- name of application (with icon) -->

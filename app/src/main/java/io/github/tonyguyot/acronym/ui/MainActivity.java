@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.tonyguyot.acronym;
+package io.github.tonyguyot.acronym.ui;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -32,6 +32,7 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import io.github.tonyguyot.acronym.R;
 import io.github.tonyguyot.acronym.utils.Utils;
 
 
