@@ -12,7 +12,7 @@
         android:id="@+id/query_item_definition"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
+        android:textSize="@dimen/large_text_size"
         />
 
     <!-- second line: the comment (may be empty) -->
@@ -20,7 +20,7 @@
         android:id="@+id/query_item_comment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
+        android:textSize="@dimen/normal_text_size"
         android:textStyle="italic"
         />
 

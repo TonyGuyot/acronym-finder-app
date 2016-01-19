@@ -16,7 +16,7 @@
         android:drawableLeft="@mipmap/arrow_up_float"
         android:drawablePadding="10dp"
         android:textStyle="bold"
-        android:textSize="16sp"
+        android:textSize="@dimen/large_text_size"
         />
 
     <!-- following lines: all the definitions -->
@@ -24,7 +24,7 @@
         android:id="@+id/history_item_definitions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
+        android:textSize="@dimen/normal_text_size"
         />
 
 </LinearLayout>
