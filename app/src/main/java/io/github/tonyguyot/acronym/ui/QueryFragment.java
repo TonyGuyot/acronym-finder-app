@@ -90,10 +90,10 @@ public class QueryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        Acronym[] savedValues = null;
+        ArrayList<Acronym> savedValues = null;
         if (savedInstanceState != null) {
             // the application has been reloaded
-            savedValues = (Acronym[]) savedInstanceState.getParcelableArray(KEY_ACRONYMS);
+            savedValues = savedInstanceState.getParcelableArrayList(KEY_ACRONYMS);
         }
 
         // Inflate the layout for this fragment
@@ -153,8 +153,7 @@ public class QueryFragment extends Fragment {
         super.onSaveInstanceState(savedState);
         ArrayList<Acronym> values = mAdapter.getValues();
         if (values != null) {
-            savedState.putParcelableArray(KEY_ACRONYMS,
-                    values.toArray(new Acronym[values.size()]));
+            savedState.putParcelableArrayList(KEY_ACRONYMS, values);
         }
     }
 
