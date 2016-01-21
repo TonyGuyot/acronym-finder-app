@@ -232,8 +232,12 @@ public class QueryFragment extends Fragment {
         } else if (AcronymService.ReplyIntent.isHttpError(intent)) {
             int httpCode = AcronymService.ReplyIntent.getHttpResponse(intent);
             Resources res = getResources();
-            String text = String.format(res.getString(R.string.query_error_response), httpCode);
-            mTvResultStatus.setText(text);
+            if (httpCode > 0) {
+                String text = String.format(res.getString(R.string.query_error_response_nnn), httpCode);
+                mTvResultStatus.setText(text);
+            } else {
+                mTvResultStatus.setText(R.string.query_error_response);
+            }
         } else {
             mTvResultStatus.setText(R.string.query_error_other);
         }
