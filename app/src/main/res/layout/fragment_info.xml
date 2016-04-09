@@ -1,65 +1,71 @@
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="io.github.tonyguyot.acronym.ui.InfoFragment"
     >
 
-    <!-- name of application (with icon) -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:gravity="center_horizontal"
-        android:textSize="24sp"
-        android:padding="8dp"
-        android:drawableStart="@mipmap/ic_launcher"
-        android:drawableLeft="@mipmap/ic_launcher"
-        />
+        android:orientation="vertical"
+        tools:context="io.github.tonyguyot.acronym.ui.InfoFragment"
+        >
 
-    <!-- version number -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/app_version"
-        android:gravity="center_horizontal"
-        android:textSize="18sp"
-        android:padding="8dp"
-        />
+        <!-- name of application (with icon) -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:gravity="center_horizontal"
+            android:textSize="24sp"
+            android:padding="8dp"
+            android:drawableStart="@mipmap/ic_launcher"
+            android:drawableLeft="@mipmap/ic_launcher"
+            />
 
-    <!-- copyright information -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/app_copyright"
-        android:gravity="center_horizontal"
-        android:textSize="18sp"
-        android:padding="8dp"
-        />
+        <!-- version number -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/app_version"
+            android:gravity="center_horizontal"
+            android:textSize="18sp"
+            android:padding="8dp"
+            />
 
-    <!-- information about the Silmaril web server -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:autoLink="web"
-        android:text="@string/info_server"
-        android:gravity="center_horizontal"
-        android:textSize="16sp"
-        android:padding="8dp"
-        android:paddingTop="24dp"
-        />
+        <!-- copyright information -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/app_copyright"
+            android:gravity="center_horizontal"
+            android:textSize="18sp"
+            android:padding="8dp"
+            />
 
-    <!-- information about the source code on GitHub -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:autoLink="web"
-        android:text="@string/info_source"
-        android:gravity="center_horizontal"
-        android:textSize="16sp"
-        android:padding="8dp"
-        />
+        <!-- information about the Silmaril web server -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoLink="web"
+            android:text="@string/info_server"
+            android:gravity="center_horizontal"
+            android:textSize="16sp"
+            android:padding="8dp"
+            android:paddingTop="24dp"
+            />
 
-</LinearLayout>
+        <!-- information about the source code on GitHub -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoLink="web"
+            android:text="@string/info_source"
+            android:gravity="center_horizontal"
+            android:textSize="16sp"
+            android:padding="8dp"
+            />
+
+    </LinearLayout>
+</ScrollView>

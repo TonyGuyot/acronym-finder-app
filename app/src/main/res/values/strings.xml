@@ -42,5 +42,5 @@
 
     <!-- info fragment -->
     <string name="info_server">This application uses the Acronym Server from Silmaril (http://acronyms.silmaril.ie). Other servers may be added in the future.</string>
-    <string name="info_source">The entire source code of this application is released freely under the Apache license and is available on GitHub.</string>
+    <string name="info_source">The entire source code of this application is released freely under the Apache license and is available on GitHub. for more info, see http://tonyguyot.github.io.</string>
 </resources>
